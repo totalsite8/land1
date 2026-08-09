@@ -1,0 +1,1 @@
+export default function Home() { return <main><p>LANDING / FOUNDATION</p><h1>Стратегия определит<br/><em>форму первого экрана.</em></h1><p>Техническая основа готова. Следующий этап — исследование ниши.</p></main>; }
