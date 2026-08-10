@@ -8,7 +8,7 @@ export default function Home() {
   return <main>
     <header className="top"><a className="brand" href="#top">ЭЙ АЙ, <em>БОЛЬНО</em></a><div className="topRight"><span>МИКРОИНСТРУМЕНТЫ / 14</span><a href="https://t.me/bloodaman" target="_blank" rel="noreferrer">TELEGRAM ↗</a></div></header>
     <section className="hero" id="top">
-      <div className="knot"><div className="knotFallback"><i /><i /><i /><i /></div><HeroEnhanced /><span className="knotCap knotCapL">боли в памяти, чатах, голосовых</span><span className="knotCap knotCapR">распутанный процесс</span></div>
+      <div className="knot"><div className="knotFallback"><i /><i /><i /><i /></div><HeroEnhanced /></div>
       <div className="heroCopy"><p className="eyebrow"><span /> Каталог микроинструментов для малого бизнеса</p><h1>Бизнесу не нужна<br />ещё одна система.<br /><em>Ему больно</em> терять<br />одно и то же.</h1><p className="heroText">Заявки тонут в чатах. Новичков учат по памяти. Смены передают на словах. Мы собираем заявки на микроинструменты, которые распутывают одну ручную операцию за раз.</p><a href="#form" className="button">Описать боль <ArrowDownRight size={18} /></a><a href="#details" className="buttonGhost">Смотреть каталог <ArrowDownRight size={18} /></a></div>
       <p className="heroFoot">СОБИРАЕМ ЗАЯВКИ НА РАЗРАБОТКУ<br />ОТВЕТИМ В ТЕЧЕНИЕ ДНЯ</p>
     </section>
