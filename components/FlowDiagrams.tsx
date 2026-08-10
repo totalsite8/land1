@@ -464,6 +464,42 @@ function ThreadPilotFlow() {
   );
 }
 
+function IdeaThreadFlow() {
+  return (
+    <Frame uid="ideathread" label="Вход: одна рабочая мысль голосовым или строкой. Действие: цепочка коротких публикаций. Результат: план согласования со статусами.">
+      <line x1="40" y1="96" x2="40" y2="72" className="fl" />
+      <line x1="50" y1="104" x2="50" y2="58" className="fl" />
+      <line x1="60" y1="112" x2="60" y2="48" className="fl" />
+      <line x1="70" y1="100" x2="70" y2="66" className="fl" />
+      <line x1="80" y1="108" x2="80" y2="54" className="fl" />
+      <line x1="90" y1="94" x2="90" y2="76" className="fl" />
+      <path d="M112 62h56v24h-30l-9 9v-9h-17z" className="fl" />
+      <text x="118" y="78" className="flS">«частый вопрос»</text>
+      <text x="28" y="150" className="flCap">одна мысль — голосом или строкой</text>
+      <rect x="256" y="28" width="152" height="34" rx="3" className="fl" />
+      <text x="268" y="49" className="flS">1 · тезис — одна строка</text>
+      <line x1="332" y1="62" x2="332" y2="76" className="flLink" markerEnd="url(#flow-arrow-ideathread)" />
+      <rect x="256" y="80" width="152" height="34" rx="3" className="fl" />
+      <text x="268" y="101" className="flS">2 · разбор — абзац</text>
+      <line x1="332" y1="114" x2="332" y2="128" className="flLink" markerEnd="url(#flow-arrow-ideathread)" />
+      <rect x="256" y="132" width="152" height="34" rx="3" className="flLime" />
+      <text x="268" y="153" className="flS">3 · пример — из практики</text>
+      <text x="256" y="190" className="flCap">цепочка коротких публикаций</text>
+      <rect x="470" y="36" width="166" height="118" rx="3" className="fl" />
+      <text x="482" y="58">План согласования</text>
+      <circle cx="489" cy="74" r="7" className="flLime" />
+      <path d="M485 74l3 3 5-6" className="fl" />
+      <text x="502" y="78" className="flS">тезис — согласован</text>
+      <circle cx="489" cy="100" r="7" className="fl" />
+      <text x="502" y="104" className="flS">разбор — на согласовании</text>
+      <circle cx="489" cy="126" r="7" className="fl" />
+      <circle cx="489" cy="126" r="3" className="flHot" />
+      <text x="502" y="130" className="flHotT">пример — ждёт редакции</text>
+      <text x="470" y="178" className="flCap">ни одна мысль не висит в никуда</text>
+    </Frame>
+  );
+}
+
 const flows: Record<string, () => ReactElement> = {
   briefbox: BriefBoxFlow,
   onboardone: OnboardOneFlow,
@@ -478,7 +514,8 @@ const flows: Record<string, () => ReactElement> = {
   leaddedup: LeadDedupFlow,
   invoicenudge: InvoiceNudgeFlow,
   stockalert: StockAlertFlow,
-  threadpilot: ThreadPilotFlow
+  threadpilot: ThreadPilotFlow,
+  ideathread: IdeaThreadFlow
 };
 
 export default function FlowDiagram({ id }: { id: string }) {
