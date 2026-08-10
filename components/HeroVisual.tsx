@@ -64,6 +64,7 @@ function sampleWord(word: string): WordData {
 function ParticleWords() {
   const points = useRef<THREE.Points>(null);
   const wordIndex = useRef(0);
+  const prevWordIndex = useRef(0);
   const lastSwitch = useRef(0);
   const sim = useRef<{ positions: Float32Array; velocities: Float32Array } | null>(null);
 
@@ -114,9 +115,14 @@ function ParticleWords() {
     const t = state.clock.elapsedTime;
     if (t - lastSwitch.current > WORD_TIME) {
       lastSwitch.current = t;
+      prevWordIndex.current = wordIndex.current;
       wordIndex.current = (wordIndex.current + 1) % words.list.length;
     }
-    const homes = words.list[wordIndex.current];
+    const current = words.list[wordIndex.current];
+    const previous = words.list[prevWordIndex.current];
+    // Плавный перелив слово→слово: цели частиц кроссфейдятся ~1.1 с.
+    const morph = Math.min(1, (t - lastSwitch.current) / 1.1);
+    const blend = morph * morph * (3 - 2 * morph);
 
     // Мировые координаты курсора на плоскости частиц.
     const halfW = state.viewport.width / 2;
@@ -126,13 +132,14 @@ function ParticleWords() {
 
     const { positions, velocities } = s;
     const attr = geometry.getAttribute("position") as THREE.BufferAttribute;
-    // Мягкая «шёлковая» физика: слабая пружина (слова собираются плавно),
-    // широкое мягкое обтекание курсора с лёгкой тангенциальной завивкой.
-    const springK = 0.014;
-    const friction = 0.92;
-    const repelRadius = 1.45;
-    const repelPower = 0.10;
-    const swirlPower = 0.055;
+    // Шёлковая физика: слабая пружина, живой микродрейф каждой частицы
+    // и широкое мягкое обтекание курсора с тангенциальной завивкой.
+    const springK = 0.012;
+    const friction = 0.94;
+    const repelRadius = 1.8;
+    const repelPower = 0.07;
+    const swirlPower = 0.05;
+    const driftAmp = 0.045;
 
     for (let i = 0; i < positions.length; i += 3) {
       let vx = velocities[i];
@@ -142,16 +149,22 @@ function ParticleWords() {
       const py = positions[i + 1];
       const pz = positions[i + 2];
 
-      vx += (homes[i] - px) * springK;
-      vy += (homes[i + 1] - py) * springK;
-      vz += (homes[i + 2] - pz) * springK;
+      // Цель: переливающийся «дом» + собственное дыхание частицы.
+      const phase = (i / 3) * 0.618;
+      const homeX = previous[i] + (current[i] - previous[i]) * blend + Math.sin(t * 0.8 + phase) * driftAmp;
+      const homeY = previous[i + 1] + (current[i + 1] - previous[i + 1]) * blend + Math.cos(t * 0.62 + phase * 1.31) * driftAmp;
+      const homeZ = previous[i + 2] + (current[i + 2] - previous[i + 2]) * blend + Math.sin(t * 0.5 + phase * 0.73) * 0.03;
+
+      vx += (homeX - px) * springK;
+      vy += (homeY - py) * springK;
+      vz += (homeZ - pz) * springK;
 
       const dx = px - mx;
       const dy = py - my;
       const dist = Math.hypot(dx, dy);
       if (dist < repelRadius && dist > 0.0001) {
         const t01 = 1 - dist / repelRadius;
-        const ease = t01 * t01; // квадратичное затухание — без резких рывков
+        const ease = t01 * t01;
         const nx = dx / dist;
         const ny = dy / dist;
         vx += nx * ease * repelPower + (-ny) * ease * swirlPower;
