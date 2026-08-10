@@ -1,224 +1,309 @@
 "use client";
 
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import type { ThreeEvent } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
+/**
+ * «Студийный» hero: центральный глянцевый узел, вокруг — клубок хаотичных нитей (боли),
+ * справа — ровные линии с бегущими пакетами (распутанные процессы).
+ * Камера параллаксит за курсором, ноды реагируют на hover, пыль отталкивается от указателя.
+ */
+
 type Vec3 = [number, number, number];
-type Kind = "pain" | "tool" | "result";
 
-type NodeDef = { id: number; kind: Kind; base: Vec3; size: number; phase: number; ring: boolean };
-
-const PAIN_BASES: Vec3[] = [
-  [-2.0, 1.05, -0.6],
-  [-2.45, 0.1, 0.2],
-  [-1.9, -0.9, -0.3],
-  [-1.15, 1.35, 0.5],
-  [-1.05, -1.3, 0.6],
-  [-2.3, 0.75, 0.9]
+const NODES_LEFT: Vec3[] = [
+  [-2.15, 0.95, 0.35],
+  [-2.55, -0.15, 0.6],
+  [-1.95, -1.0, 0.1]
 ];
-const TOOL_BASES: Vec3[] = [
-  [-0.45, 0.85, -0.2],
-  [0.05, 0.15, 0.55],
-  [-0.5, -0.75, 0.1],
-  [0.35, 1.25, -0.7],
-  [0.55, -1.05, -0.5],
-  [-0.15, -0.15, -0.85]
-];
-const RESULT_BASES: Vec3[] = [
-  [1.45, 0.85, 0.15],
-  [1.65, -0.05, -0.35],
-  [1.45, -0.95, 0.45]
+const NODES_RIGHT: Vec3[] = [
+  [2.45, 1.25, -0.2],
+  [2.7, 0.65, 0.25],
+  [2.6, 0.0, -0.45],
+  [2.75, -0.65, 0.35],
+  [2.5, -1.25, -0.1]
 ];
 
-// Связи «боль → инструмент» и «инструмент → результат» (индексы внутри своих групп).
-const PAIN_TO_TOOLS: number[][] = [[0, 3], [1, 5], [2, 4], [0, 3], [2, 4], [1, 5]];
-const TOOL_TO_RESULT: number[] = [0, 0, 1, 1, 2, 2];
-
-const KIND_COLOR: Record<Kind, string> = { pain: "#ed4b36", tool: "#a8c93f", result: "#151714" };
-const KIND_HOT: Record<Kind, string> = { pain: "#ff6f57", tool: "#c8ef55", result: "#3d3f39" };
-
-function buildGraph() {
-  const nodes: NodeDef[] = [
-    ...PAIN_BASES.map((base, i) => ({ id: i, kind: "pain" as Kind, base, size: 0.16, phase: i * 1.7, ring: true })),
-    ...TOOL_BASES.map((base, i) => ({ id: 6 + i, kind: "tool" as Kind, base, size: 0.14, phase: i * 2.3, ring: false })),
-    ...RESULT_BASES.map((base, i) => ({ id: 12 + i, kind: "result" as Kind, base, size: 0.17, phase: i * 2.9, ring: true }))
-  ];
-  const adj = new Map<number, number[]>();
-  const link = (a: number, b: number) => {
-    adj.set(a, [...(adj.get(a) ?? []), b]);
-    adj.set(b, [...(adj.get(b) ?? []), a]);
+function seededRandom(seed: number) {
+  let s = seed;
+  return () => {
+    s = (s * 16807) % 2147483647;
+    return (s - 1) / 2147483646;
   };
-  const edges: Array<[number, number, "pain" | "tool"]> = [];
-  PAIN_TO_TOOLS.forEach((tools, pain) => {
-    tools.forEach((tool) => {
-      link(pain, 6 + tool);
-      edges.push([pain, 6 + tool, "pain"]);
-    });
-  });
-  TOOL_TO_RESULT.forEach((result, tool) => {
-    link(6 + tool, 12 + result);
-    edges.push([6 + tool, 12 + result, "tool"]);
-  });
-  return { nodes, adj, edges };
 }
 
-const { nodes, adj, edges } = buildGraph();
-
-type Shared = { positions: THREE.Vector3[]; hovered: number | null };
-
-function Node({ def, shared, setHovered }: { def: NodeDef; shared: Shared; setHovered: (id: number | null) => void }) {
-  const mesh = useRef<THREE.Mesh>(null);
-  const ringMesh = useRef<THREE.Mesh>(null);
-  const isHot = shared.hovered === def.id;
-  const isLinked = shared.hovered !== null && (adj.get(shared.hovered) ?? []).includes(def.id);
-  const target = isHot ? 1.6 : isLinked ? 1.28 : 1;
-
-  useFrame((state, delta) => {
-    const m = mesh.current;
-    if (!m) return;
-    const t = state.clock.elapsedTime;
-    // Мягкое «дыхание» узлов.
-    const bob = 0.05 * Math.sin(t * 1.1 + def.phase);
-    // Мировая позиция указателя и отталкивание узлов.
-    const halfW = state.viewport.width / 2;
-    const halfH = state.viewport.height / 2;
-    const mx = state.pointer.x * halfW;
-    const my = state.pointer.y * halfH;
-    const dx = def.base[0] - mx;
-    const dy = def.base[1] - my;
-    const dist = Math.hypot(dx, dy);
-    const radius = 1.05;
-    const push = dist < radius ? ((radius - dist) / radius) * 0.4 : 0;
-    const px = def.base[0] + (dist > 0.001 ? (dx / dist) * push : 0);
-    const py = def.base[1] + bob + (dist > 0.001 ? (dy / dist) * push : 0);
-    m.position.set(px, py, def.base[2] + 0.06 * Math.cos(t * 0.9 + def.phase));
-    shared.positions[def.id].copy(m.position);
-    const s = THREE.MathUtils.damp(m.scale.x, target, 8, delta);
-    m.scale.setScalar(s);
-    if (ringMesh.current) {
-      ringMesh.current.rotation.x += delta * 0.5;
-      ringMesh.current.rotation.y += delta * 0.35;
-      ringMesh.current.scale.setScalar(s);
-    }
-  });
-
-  const color = isHot ? KIND_HOT[def.kind] : KIND_COLOR[def.kind];
-  const over = (event: ThreeEvent<PointerEvent>) => {
-    event.stopPropagation();
-    setHovered(def.id);
-  };
-  const out = () => setHovered(null);
-
-  return (
-    <mesh ref={mesh} position={def.base} onPointerOver={over} onPointerOut={out}>
-      <sphereGeometry args={[def.size, 24, 24]} />
-      <meshBasicMaterial color={color} />
-      {def.ring && (
-        <mesh ref={ringMesh}>
-          <torusGeometry args={[def.size * 1.7, 0.014, 8, 44]} />
-          <meshBasicMaterial color={def.kind === "pain" ? "#ed4b36" : "#151714"} transparent opacity={isHot || isLinked ? 0.85 : 0.4} />
-        </mesh>
-      )}
-    </mesh>
-  );
-}
-
-function EdgeLines({ shared, hovered }: { shared: Shared; hovered: number | null }) {
-  const normalRef = useRef<THREE.BufferGeometry>(null);
-  const hotRef = useRef<THREE.BufferGeometry>(null);
-
-  const { normalEdges, hotEdges } = useMemo(() => {
-    if (hovered === null) return { normalEdges: edges, hotEdges: [] as typeof edges };
-    const linked = adj.get(hovered) ?? [];
-    const hot = edges.filter(([a, b]) => a === hovered || b === hovered || (linked.includes(a) && linked.includes(b) && (a === hovered || b === hovered)));
-    const hotSet = new Set(hot);
-    return { normalEdges: edges.filter((edge) => !hotSet.has(edge)), hotEdges: hot };
-  }, [hovered]);
-
-  useFrame(() => {
-    const write = (geometry: THREE.BufferGeometry | null, list: typeof edges) => {
-      if (!geometry) return;
-      const array = geometry.getAttribute("position") as THREE.BufferAttribute;
-      list.forEach(([a, b], i) => {
-        const pa = shared.positions[a];
-        const pb = shared.positions[b];
-        array.setXYZ(i * 2, pa.x, pa.y, pa.z);
-        array.setXYZ(i * 2 + 1, pb.x, pb.y, pb.z);
-      });
-      array.needsUpdate = true;
-    };
-    write(normalRef.current, normalEdges);
-    write(hotRef.current, hotEdges);
-  });
-
-  return (
-    <>
-      <lineSegments key={`n-${normalEdges.length}`} frustumCulled={false}>
-        <bufferGeometry ref={normalRef}>
-          <bufferAttribute attach="attributes-position" args={[new Float32Array(normalEdges.length * 6), 3]} />
-        </bufferGeometry>
-        <lineBasicMaterial color="#151714" transparent opacity={0.3} />
-      </lineSegments>
-      {hotEdges.length > 0 && (
-        <lineSegments key={`h-${hotEdges.length}`} frustumCulled={false}>
-          <bufferGeometry ref={hotRef}>
-            <bufferAttribute attach="attributes-position" args={[new Float32Array(hotEdges.length * 6), 3]} />
-          </bufferGeometry>
-          <lineBasicMaterial color="#7ba01a" transparent opacity={0.95} />
-        </lineSegments>
-      )}
-    </>
-  );
-}
-
-function Threads() {
-  const points = useRef<THREE.Points>(null);
-  const geometry = useMemo(() => {
-    const positions: number[] = [];
-    for (let i = 0; i < 900; i += 1) {
-      const t = (i / 900) * Math.PI * 12;
-      const r = 1.35 + 0.3 * Math.sin(5 * t) + 0.09 * Math.sin(13 * t);
-      positions.push(r * Math.cos(t), 0.75 * Math.sin(3 * t), r * Math.sin(t));
-    }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-    return g;
-  }, []);
-  useFrame((_, delta) => {
-    if (points.current) points.current.rotation.y += delta * 0.05;
-  });
-  return <points ref={points} geometry={geometry}><pointsMaterial color="#b5ce51" size={0.02} sizeAttenuation transparent opacity={0.35} /></points>;
-}
-
-function Scene({ hovered, setHovered }: { hovered: number | null; setHovered: (id: number | null) => void }) {
+/** Клубок хаотичных нитей вокруг узла (боли). */
+function ChaosThreads() {
   const group = useRef<THREE.Group>(null);
-  const shared = useMemo<Shared>(() => ({ positions: nodes.map((n) => new THREE.Vector3(...n.base)), hovered: null }), []);
-  shared.hovered = hovered;
+  const tubes = useMemo(() => {
+    const rand = seededRandom(42);
+    const list: { geometry: THREE.TubeGeometry; color: string; opacity: number; spin: Vec3 }[] = [];
+    for (let i = 0; i < 26; i += 1) {
+      const points: THREE.Vector3[] = [];
+      const shell = 1.35 + rand() * 0.55;
+      const tilt = rand() * Math.PI;
+      for (let j = 0; j < 6; j += 1) {
+        const a = (j / 6) * Math.PI * 2;
+        const wobble = 0.55 + rand() * 0.75;
+        points.push(new THREE.Vector3(
+          Math.cos(a) * shell * wobble - 0.35,
+          Math.sin(a + tilt) * shell * 0.55 * wobble,
+          Math.sin(a) * shell * 0.6 * wobble
+        ));
+      }
+      const curve = new THREE.CatmullRomCurve3(points, true, "catmullrom", 0.9);
+      const geometry = new THREE.TubeGeometry(curve, 72, 0.014 + rand() * 0.008, 6, true);
+      list.push({ geometry, color: i % 5 === 0 ? "#151714" : "#ed4b36", opacity: i % 5 === 0 ? 0.5 : 0.62, spin: [(rand() - 0.5) * 0.3, (rand() - 0.5) * 0.3, (rand() - 0.5) * 0.3] });
+    }
+    return list;
+  }, []);
 
   useFrame((state, delta) => {
     const g = group.current;
     if (!g) return;
     const t = state.clock.elapsedTime;
-    // Параллакс за курсором + медленный автообзор.
-    const targetY = state.pointer.x * 0.4 + Math.sin(t * 0.12) * 0.12;
-    const targetX = -state.pointer.y * 0.3 + Math.cos(t * 0.1) * 0.08;
-    g.rotation.y = THREE.MathUtils.damp(g.rotation.y, targetY, 3.5, delta);
-    g.rotation.x = THREE.MathUtils.damp(g.rotation.x, targetX, 3.5, delta);
+    g.rotation.y += delta * 0.07;
+    g.rotation.x = Math.sin(t * 0.14) * 0.1;
+    tubes.forEach((tube, i) => {
+      const child = g.children[i];
+      if (child) {
+        child.rotation.x += delta * tube.spin[0];
+        child.rotation.y += delta * tube.spin[1];
+      }
+    });
   });
 
   return (
     <group ref={group}>
-      <Threads />
-      <EdgeLines shared={shared} hovered={hovered} />
-      {nodes.map((def) => <Node key={def.id} def={def} shared={shared} setHovered={setHovered} />)}
+      {tubes.map((tube, i) => (
+        <mesh key={i} geometry={tube.geometry}>
+          <meshBasicMaterial color={tube.color} transparent opacity={tube.opacity} />
+        </mesh>
+      ))}
     </group>
   );
 }
 
+/** Центральная скульптура — узел. */
+function KnotBody() {
+  const mesh = useRef<THREE.Mesh>(null);
+  const geometry = useMemo(() => new THREE.TorusKnotGeometry(1.02, 0.3, 260, 32), []);
+  useFrame((state, delta) => {
+    if (!mesh.current) return;
+    mesh.current.rotation.y += delta * 0.16;
+    mesh.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.11) * 0.14;
+    const breathe = 1 + Math.sin(state.clock.elapsedTime * 0.6) * 0.012;
+    mesh.current.scale.setScalar(breathe);
+  });
+  return (
+    <mesh ref={mesh} geometry={geometry}>
+      <meshPhysicalMaterial color="#151714" roughness={0.28} metalness={0.15} clearcoat={0.6} clearcoatRoughness={0.35} />
+    </mesh>
+  );
+}
+
+/** Ровные линии «распутанных процессов» + бегущие по ним пакеты. */
+function OrderLines() {
+  const packets = useRef<(THREE.Mesh | null)[]>([]);
+  const lines = useMemo(() => {
+    return NODES_RIGHT.map((end, i) => {
+      const start: Vec3 = [0.55 + (i % 3) * 0.12, end[1] * 0.28, end[2] * 0.3];
+      const curve = new THREE.LineCurve3(new THREE.Vector3(...start), new THREE.Vector3(end[0] - 0.22, end[1], end[2]));
+      return { geometry: new THREE.TubeGeometry(curve, 1, 0.013, 6), curve, offset: i / NODES_RIGHT.length, speed: 0.22 + (i % 3) * 0.05 };
+    });
+  }, []);
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    lines.forEach((line, i) => {
+      const p = packets.current[i];
+      if (!p) return;
+      const u = (t * line.speed + line.offset) % 1;
+      const pos = line.curve.getPoint(u);
+      p.position.copy(pos);
+      const fade = u < 0.12 ? u / 0.12 : u > 0.9 ? (1 - u) / 0.1 : 1;
+      p.scale.setScalar(0.45 + fade * 0.55);
+    });
+  });
+
+  return (
+    <group>
+      {lines.map((line, i) => (
+        <mesh key={`l${i}`} geometry={line.geometry}>
+          <meshBasicMaterial color="#7ba01a" transparent opacity={0.75} />
+        </mesh>
+      ))}
+      {lines.map((_, i) => (
+        <mesh key={`p${i}`} ref={(el) => { packets.current[i] = el; }}>
+          <sphereGeometry args={[0.05, 14, 14]} />
+          <meshBasicMaterial color="#c8ef55" />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/** Красные орбитальные «остатки боли» вокруг узла. */
+function PainOrbiters() {
+  const items = useRef<(THREE.Mesh | null)[]>([]);
+  const orbits = useMemo(() => {
+    const rand = seededRandom(7);
+    return Array.from({ length: 6 }, () => ({
+      radius: 1.55 + rand() * 0.75,
+      tilt: rand() * Math.PI,
+      speed: 0.35 + rand() * 0.4,
+      offset: rand() * Math.PI * 2,
+      size: 0.035 + rand() * 0.025
+    }));
+  }, []);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    orbits.forEach((orbit, i) => {
+      const m = items.current[i];
+      if (!m) return;
+      const a = t * orbit.speed + orbit.offset;
+      m.position.set(
+        Math.cos(a) * orbit.radius - 0.3,
+        Math.sin(a) * orbit.radius * 0.45 * Math.cos(orbit.tilt),
+        Math.sin(a) * orbit.radius * Math.sin(orbit.tilt)
+      );
+    });
+  });
+  return (
+    <group>
+      {orbits.map((orbit, i) => (
+        <mesh key={i} ref={(el) => { items.current[i] = el; }}>
+          <sphereGeometry args={[orbit.size, 12, 12]} />
+          <meshBasicMaterial color="#ed4b36" transparent opacity={0.8} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/** Реактивная пыль: расступается от указателя. */
+function Dust() {
+  const points = useRef<THREE.Points>(null);
+  const { base, geometry } = useMemo(() => {
+    const rand = seededRandom(99);
+    const count = 620;
+    const positions = new Float32Array(count * 3);
+    for (let i = 0; i < count; i += 1) {
+      positions[i * 3] = (rand() - 0.5) * 7.5;
+      positions[i * 3 + 1] = (rand() - 0.5) * 5;
+      positions[i * 3 + 2] = (rand() - 0.5) * 3 - 0.4;
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(positions.slice(), 3));
+    return { base: positions, geometry: g };
+  }, []);
+
+  useFrame((state) => {
+    const pts = points.current;
+    if (!pts) return;
+    const t = state.clock.elapsedTime;
+    const attr = geometry.getAttribute("position") as THREE.BufferAttribute;
+    const halfW = state.viewport.width / 2;
+    const halfH = state.viewport.height / 2;
+    const mx = state.pointer.x * halfW;
+    const my = state.pointer.y * halfH;
+    for (let i = 0; i < attr.count; i += 1) {
+      const bx = base[i * 3];
+      const by = base[i * 3 + 1] + Math.sin(t * 0.35 + i * 0.7) * 0.05;
+      const dx = bx - mx;
+      const dy = by - my;
+      const dist = Math.hypot(dx, dy);
+      const radius = 1.1;
+      const push = dist < radius && dist > 0.001 ? ((radius - dist) / radius) * 0.42 : 0;
+      attr.setXYZ(i, bx + (dx / (dist || 1)) * push, by + (dy / (dist || 1)) * push, base[i * 3 + 2]);
+    }
+    attr.needsUpdate = true;
+  });
+
+  return (
+    <points ref={points} geometry={geometry}>
+      <pointsMaterial color="#8a887f" size={0.022} sizeAttenuation transparent opacity={0.55} />
+    </points>
+  );
+}
+
+/** Интерактивные глянцевые ноды. */
+function GlossNode({ position, color, hovered, onHover }: { position: Vec3; color: string; hovered: boolean; onHover: (h: boolean) => void }) {
+  const mesh = useRef<THREE.Mesh>(null);
+  useFrame((state, delta) => {
+    if (!mesh.current) return;
+    const target = hovered ? 1.5 : 1 + Math.sin(state.clock.elapsedTime * 1.3 + position[0]) * 0.04;
+    const s = THREE.MathUtils.damp(mesh.current.scale.x, target, 9, delta);
+    mesh.current.scale.setScalar(s);
+  });
+  return (
+    <mesh
+      ref={mesh}
+      position={position}
+      onPointerOver={(event: ThreeEvent<PointerEvent>) => { event.stopPropagation(); onHover(true); }}
+      onPointerOut={() => onHover(false)}
+    >
+      <sphereGeometry args={[color === "#ed4b36" ? 0.085 : 0.1, 28, 28]} />
+      <meshPhysicalMaterial
+        color={color}
+        roughness={0.18}
+        metalness={0.1}
+        clearcoat={1}
+        clearcoatRoughness={0.15}
+        emissive={color}
+        emissiveIntensity={hovered ? 0.55 : 0.12}
+      />
+    </mesh>
+  );
+}
+
+/** Камера параллаксит за любым движением мыши; вся сцена плавно доворачивается. */
+function Rig() {
+  const group = useRef<THREE.Group>(null);
+  const { camera } = useThree();
+  useFrame((state, delta) => {
+    camera.position.x = THREE.MathUtils.damp(camera.position.x, state.pointer.x * 0.85, 2.6, delta);
+    camera.position.y = THREE.MathUtils.damp(camera.position.y, state.pointer.y * 0.55, 2.6, delta);
+    camera.lookAt(0.2, 0, 0);
+    if (group.current) {
+      group.current.rotation.y = THREE.MathUtils.damp(group.current.rotation.y, state.pointer.x * 0.22, 2.4, delta);
+      group.current.rotation.x = THREE.MathUtils.damp(group.current.rotation.x, -state.pointer.y * 0.14, 2.4, delta);
+    }
+  });
+  return (
+    <group ref={group}>
+      <KnotBody />
+      <ChaosThreads />
+      <OrderLines />
+      <PainOrbiters />
+      <Dust />
+    </group>
+  );
+}
+
+function Scene({ hovered, setHovered }: { hovered: string | null; setHovered: (id: string | null) => void }) {
+  return (
+    <>
+      <hemisphereLight args={["#f4f1e9", "#c9c2b2", 0.75]} />
+      <directionalLight position={[4.5, 6, 8]} intensity={1.5} />
+      <directionalLight position={[-4, -2, 3]} intensity={0.5} />
+      <pointLight position={[3, 0.4, 1.6]} intensity={14} distance={7} color="#d9ff5a" />
+      <pointLight position={[-3.4, 0.4, 1.2]} intensity={10} distance={6} color="#ed4b36" />
+      <Rig />
+      {NODES_LEFT.map((pos, i) => (
+        <GlossNode key={`L${i}`} position={pos} color="#ed4b36" hovered={hovered === `L${i}`} onHover={(h) => setHovered(h ? `L${i}` : null)} />
+      ))}
+      {NODES_RIGHT.map((pos, i) => (
+        <GlossNode key={`R${i}`} position={pos} color="#d9ff5a" hovered={hovered === `R${i}`} onHover={(h) => setHovered(h ? `R${i}` : null)} />
+      ))}
+    </>
+  );
+}
+
 export default function HeroVisual() {
-  const [hovered, setHovered] = useState<number | null>(null);
+  const [hovered, setHovered] = useState<string | null>(null);
   const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
@@ -229,10 +314,9 @@ export default function HeroVisual() {
 
   return (
     <Canvas
-      camera={{ position: [0, 0, 5.2], fov: 44 }}
-      dpr={[1, 1.6]}
+      camera={{ position: [0, 0, 5.4], fov: 42 }}
+      dpr={[1, 1.75]}
       gl={{ alpha: true, antialias: true }}
-      style={{ pointerEvents: "auto" }}
       onCreated={() => {
         const fallback = document.querySelector<HTMLElement>(".knotFallback");
         if (fallback) {
@@ -240,6 +324,7 @@ export default function HeroVisual() {
           fallback.style.opacity = "0";
         }
       }}
+      onPointerMissed={() => setHovered(null)}
     >
       <Scene hovered={hovered} setHovered={setHovered} />
     </Canvas>
