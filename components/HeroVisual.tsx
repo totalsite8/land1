@@ -49,7 +49,8 @@ function sampleWord(word: string): WordData {
   for (let y = 0; y < height; y += stepY) {
     for (let x = 0; x < width; x += stepX) {
       if (pixels[(y * width + x) * 4 + 3] > 120) {
-        raw.push((x - width / 2) / 265, -(y - height / 2) / 265, (Math.random() - 0.5) * 0.45);
+        // Поле уже и смещено вправо, чтобы не заходить на заголовок.
+        raw.push((x - width / 2) / 295 + 0.55, -(y - height / 2) / 295, (Math.random() - 0.5) * 0.45);
       }
     }
   }
