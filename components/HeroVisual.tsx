@@ -10,8 +10,11 @@ import * as THREE from "three";
  * Частицы — точки, сэмплированные с растеризованного текста; смена слова = смена «домов» частиц.
  */
 
-const WORDS = ["ХАОС", "ЗАЯВКИ", "ПРОЦЕСС", "ЯСНОСТЬ"];
-const WORD_TIME = 3.6;
+const WORDS = [
+  "ХАОС", "ТРАФИК", "ЛИДЫ", "ЗАЯВКИ", "КЛИЕНТЫ", "СДЕЛКИ", "ПРОДАЖИ", "ВЫРУЧКА",
+  "КОНВЕРСИЯ", "ОХВАТ", "ВОРОНКА", "МАРЖА", "ПОТОК", "ПРОЦЕСС", "ПОРЯДОК", "ЯСНОСТЬ"
+];
+const WORD_TIME = 3.4;
 const MAX_PARTICLES = 6500;
 const INK = "#232620";
 const HOT = "#ed4b36";
@@ -123,10 +126,13 @@ function ParticleWords() {
 
     const { positions, velocities } = s;
     const attr = geometry.getAttribute("position") as THREE.BufferAttribute;
-    const springK = 0.028;
-    const friction = 0.9;
-    const repelRadius = 0.95;
-    const repelPower = 0.32;
+    // Мягкая «шёлковая» физика: слабая пружина (слова собираются плавно),
+    // широкое мягкое обтекание курсора с лёгкой тангенциальной завивкой.
+    const springK = 0.014;
+    const friction = 0.92;
+    const repelRadius = 1.45;
+    const repelPower = 0.10;
+    const swirlPower = 0.055;
 
     for (let i = 0; i < positions.length; i += 3) {
       let vx = velocities[i];
@@ -136,19 +142,20 @@ function ParticleWords() {
       const py = positions[i + 1];
       const pz = positions[i + 2];
 
-      // Пружина к «дому» частицы.
       vx += (homes[i] - px) * springK;
       vy += (homes[i + 1] - py) * springK;
       vz += (homes[i + 2] - pz) * springK;
 
-      // Отталкивание от курсора.
       const dx = px - mx;
       const dy = py - my;
       const dist = Math.hypot(dx, dy);
       if (dist < repelRadius && dist > 0.0001) {
-        const force = ((repelRadius - dist) / repelRadius) * repelPower;
-        vx += (dx / dist) * force;
-        vy += (dy / dist) * force;
+        const t01 = 1 - dist / repelRadius;
+        const ease = t01 * t01; // квадратичное затухание — без резких рывков
+        const nx = dx / dist;
+        const ny = dy / dist;
+        vx += nx * ease * repelPower + (-ny) * ease * swirlPower;
+        vy += ny * ease * repelPower + nx * ease * swirlPower;
       }
 
       vx *= friction;
