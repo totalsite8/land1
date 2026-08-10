@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const requiredFields = ["problem", "area", "role", "team", "contact"] as const;
+const requiredFields = ["problem", "area", "role", "team", "contact", "current"] as const;
 
 export async function POST(request: Request) {
   const body = await request.json() as Record<string, unknown>;
@@ -18,6 +18,7 @@ export async function POST(request: Request) {
     `Процесс: ${lead.area}`,
     `Роль: ${lead.role}`,
     `Команда: ${lead.team}`,
+    `Сейчас ведут: ${lead.current}`,
     `Контакт: ${lead.contact}`
   ].join("\n");
 

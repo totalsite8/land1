@@ -26,6 +26,7 @@ export default function ProblemForm() {
       <label>Ваша роль<select required name="role" defaultValue=""><option value="" disabled>Выберите роль</option><option>Собственник</option><option>Руководитель отдела</option><option>Другое</option></select></label>
       <label>Размер команды<select required name="team" defaultValue=""><option value="" disabled>Выберите размер</option><option>1–5</option><option>6–20</option><option>21–80</option><option>80+</option></select></label>
       <label>Контакт для ответа<input required name="contact" placeholder="Телефон или Telegram" /></label>
+      <label className="wide">Как процесс ведётся сейчас?<select required name="current" defaultValue=""><option value="" disabled>Выберите текущий способ</option><option>Таблицы (Excel, Google Sheets)</option><option>Чаты и мессенджеры</option><option>В памяти и на словах</option><option>CRM или 1С</option><option>Бумага и личный учёт</option><option>Всё сразу, у всех по-разному</option></select></label>
     </div>
     <label className="check"><input required type="checkbox" name="consent" /> <span>Согласен на обработку данных для ответа на заявку.</span></label>
     <button className="button buttonDark" disabled={state === "sending"} type="submit">{state === "sending" ? "Отправляем…" : "Отправить заявку на разбор"} <span>↗</span></button>
