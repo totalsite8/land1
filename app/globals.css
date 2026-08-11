@@ -3,3 +3,15 @@
 @media(max-width:780px){.topRight span{display:none}.hero{display:block;min-height:calc(100vh - 74px);min-height:calc(100svh - 74px);padding-top:40px;padding-bottom:70px}.knot{height:min(34vw,150px);margin:clamp(8px,2.5vw,16px) 0 clamp(18px,5vw,28px)}.knot canvas{pointer-events:none}.hero h1{font-size:clamp(48px,14vw,80px)}.heroText{max-width:380px}.heroFoot{left:20px;right:auto}.buttonGhost{margin-left:0;margin-top:12px}.sceneGrid,.solutions,.catalogue,.formSection{grid-template-columns:1fr}.sceneGrid article{min-height:170px}.solutions,.catalogue,.formSection{gap:52px}.processTitle{display:block}.process ol{grid-template-columns:1fr 1fr;margin-top:45px}.process li span{margin-bottom:22px}.catalogueList a{font-size:15px}.catalogueList small{display:none}.detailsHead{display:block}.detailsHead h2{margin:0 0 24px}.caseHead{grid-template-columns:1fr;gap:12px}.caseBody,.caseGrid{grid-template-columns:1fr;gap:30px}.formGrid{grid-template-columns:1fr}.faq{padding-top:70px;padding-bottom:70px}footer{display:block}footer>*{display:block;margin:12px 0}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}.knot canvas{display:none}}
 .formError{margin:13px 0 0;color:#a21f16;font-size:12px;line-height:1.5}.formError a{font-weight:800}.button:disabled{opacity:.6;cursor:wait}
+
+/* Фоновые текстуры секций (hero и шапка — без фоновых изображений).
+   Под каждой картинкой лежит её брендовый цвет: секция читается, даже если
+   изображение не успело или не смогло загрузиться. */
+.diagnosis{background:var(--ink) url("/media/bg-diag2.webp") center/cover}
+.solutions{background:var(--paper) url("/media/bg-sol2.webp") center/cover}
+.catalogue{background:var(--lime) url("/media/bg-cat2.webp") center/cover}
+.details{background:var(--paper) url("/media/bg-det2.webp") center/cover}
+.process{background:#e3dfd5 url("/media/bg-proc2.webp") center/cover}
+.formSection{background:var(--hot) url("/media/bg-form2.webp") center/cover}
+.faq{background:var(--paper) url("/media/bg-sol2.webp") center bottom/cover}
+footer{background:var(--ink) url("/media/bg-diag2.webp") center bottom/cover}
