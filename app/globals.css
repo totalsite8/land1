@@ -4,9 +4,8 @@
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}.knot canvas{display:none}}
 .formError{margin:13px 0 0;color:#a21f16;font-size:12px;line-height:1.5}.formError a{font-weight:800}.button:disabled{opacity:.6;cursor:wait}
 
-/* Фоновые текстуры секций: тёплая бумага, тушь, лайм — сгенерированы под палитру бренда. */
-.top{background:var(--paper) url("/media/bg-hero.webp") center top/cover}
-.hero{background:var(--paper) url("/media/bg-hero.webp") center/cover}
+/* Фоновые текстуры секций: тёплая бумага, тушь, лайм — сгенерированы под палитру бренда.
+   Hero-блок и шапка без фоновых изображений — по решению владельца. */
 .diagnosis{background:var(--ink) url("/media/bg-diagnosis.webp") center/cover}
 .solutions{background:var(--paper) url("/media/bg-solutions.webp") center/cover}
 .catalogue{background:var(--lime) url("/media/bg-catalogue.webp") center/cover}
