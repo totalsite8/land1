@@ -77,8 +77,6 @@ function ParticleWords() {
   const prevWordIndex = useRef(0);
   const lastSwitch = useRef(0);
   const sim = useRef<{ positions: Float32Array; velocities: Float32Array } | null>(null);
-  // Сильно сглаженный указатель: резкое движение мыши превращается в медленный дрейф.
-  const smoothMouse = useRef({ x: 0, y: 0 });
 
   const { words, geometry } = useMemo(() => {
     const sampled = WORDS.map(sampleWord);
@@ -136,25 +134,21 @@ function ParticleWords() {
     const morph = Math.min(1, (t - lastSwitch.current) / 1.1);
     const blend = morph * morph * (3 - 2 * morph);
 
-    // Мировые координаты курсора на плоскости частиц (сглаженные).
+    // Мировые координаты курсора на плоскости частиц.
+    // Жёсткая привязка: зона влияния строго под курсором, без догоняющего сглаживания.
     const halfW = state.viewport.width / 2;
     const halfH = state.viewport.height / 2;
-    const rawMx = state.pointer.x * halfW;
-    const rawMy = state.pointer.y * halfH;
-    smoothMouse.current.x += (rawMx - smoothMouse.current.x) * 0.045;
-    smoothMouse.current.y += (rawMy - smoothMouse.current.y) * 0.045;
-    const mx = smoothMouse.current.x;
-    const my = smoothMouse.current.y;
+    const mx = state.pointer.x * halfW;
+    const my = state.pointer.y * halfH;
 
     const { positions, velocities } = s;
     const attr = geometry.getAttribute("position") as THREE.BufferAttribute;
-    // «Сонная» физика: слабая пружина, собственное дыхание каждой частицы
-    // и едва заметный прибрежный вал под курсором — частицы плавно приподнимаются.
+    // Мягкая, «плавающая» физика: слабая пружина, собственное дыхание каждой частицы.
+    // Под курсором — крошечная зона, где частицы лишь слегка, плавно расступаются.
     const springK = 0.012;
-    const friction = 0.94;
-    const swellRadius = 1.6;
-    const liftPower = 0.011;
-    const driftPower = 0.009;
+    const friction = 0.93;
+    const partRadius = 0.55;   // маленький радиус: влияние только в точке курсора
+    const partPower = 0.0021;  // очень слабый толчок: расступание едва заметно
     const driftAmp = 0.045;
 
     for (let i = 0; i < positions.length; i += 3) {
@@ -178,12 +172,14 @@ function ParticleWords() {
       const dx = px - mx;
       const dy = py - my;
       const dist = Math.hypot(dx, dy);
-      if (dist < swellRadius && dist > 0.0001) {
-        const t01 = 1 - dist / swellRadius;
-        const ease = t01 * t01 * (3 - 2 * t01); // smoothstep — вал без краёв
-        vz += ease * liftPower;
-        vx += (dx / dist) * ease * driftPower;
-        vy += (dy / dist) * ease * driftPower;
+      if (dist < partRadius && dist > 0.0001) {
+        const t01 = 1 - dist / partRadius;
+        // Smoothstep-затухание без краёв: мягкий максимум в точке курсора,
+        // к границе радиуса сила плавно сходит на ноль вместе с производной.
+        const ease = t01 * t01 * (3 - 2 * t01);
+        const push = ease * partPower;
+        vx += (dx / dist) * push; // чистое расступание в стороны, в плоскости слова
+        vy += (dy / dist) * push;
       }
 
       vx *= friction;
