@@ -6,7 +6,8 @@ import * as THREE from "three";
 
 /**
  * Классический «студийный» эффект: облако частиц складывается в русские слова,
- * курсор их разгоняет, пружинная физика возвращает обратно на место.
+ * курсор мягко расталкивает их (только на устройствах с настоящим hover),
+ * пружинная физика возвращает обратно на место.
  * Частицы — точки, сэмплированные с растеризованного текста; смена слова = смена «домов» частиц.
  */
 
@@ -71,7 +72,7 @@ function sampleWord(word: string): WordData {
   return { homes: out, count: homes.length / 3 };
 }
 
-function ParticleWords() {
+function ParticleWords({ hoverEnabled, centered }: { hoverEnabled: boolean; centered: boolean }) {
   const points = useRef<THREE.Points>(null);
   const wordIndex = useRef(0);
   const prevWordIndex = useRef(0);
@@ -169,17 +170,21 @@ function ParticleWords() {
       vy += (homeY - py) * springK;
       vz += (homeZ - pz) * springK;
 
-      const dx = px - mx;
-      const dy = py - my;
-      const dist = Math.hypot(dx, dy);
-      if (dist < partRadius && dist > 0.0001) {
-        const t01 = 1 - dist / partRadius;
-        // Smoothstep-затухание без краёв: мягкий максимум в точке курсора,
-        // к границе радиуса сила плавно сходит на ноль вместе с производной.
-        const ease = t01 * t01 * (3 - 2 * t01);
-        const push = ease * partPower;
-        vx += (dx / dist) * push; // чистое расступание в стороны, в плоскости слова
-        vy += (dy / dist) * push;
+      // Расступание под курсором — только где есть настоящий hover (мышь/трекпад).
+      // На сенсорных устройствах частицы не реагируют на касания вовсе.
+      if (hoverEnabled) {
+        const dx = px - mx;
+        const dy = py - my;
+        const dist = Math.hypot(dx, dy);
+        if (dist < partRadius && dist > 0.0001) {
+          const t01 = 1 - dist / partRadius;
+          // Smoothstep-затухание без краёв: мягкий максимум в точке курсора,
+          // к границе радиуса сила плавно сходит на ноль вместе с производной.
+          const ease = t01 * t01 * (3 - 2 * t01);
+          const push = ease * partPower;
+          vx += (dx / dist) * push; // чистое расступание в стороны, в плоскости слова
+          vy += (dy / dist) * push;
+        }
       }
 
       vx *= friction;
@@ -192,9 +197,17 @@ function ParticleWords() {
     }
     attr.needsUpdate = true;
 
-    // Едва заметный наклон всей фразы за курсором.
-    pts.rotation.y = state.pointer.x * 0.06;
-    pts.rotation.x = -state.pointer.y * 0.04;
+    // Едва заметный наклон всей фразы за курсором — тоже только при наличии hover.
+    if (hoverEnabled) {
+      pts.rotation.y = state.pointer.x * 0.06;
+      pts.rotation.x = -state.pointer.y * 0.04;
+    } else {
+      pts.rotation.y = 0;
+      pts.rotation.x = 0;
+    }
+    // На узких экранах блок стоит в потоке под заголовком:
+    // убираем десктопный сдвиг слова +0.3, чтобы оно было по центру.
+    pts.position.x = centered ? -0.3 : 0;
   });
 
   return (
@@ -205,10 +218,34 @@ function ParticleWords() {
 }
 
 export default function HeroVisual() {
-  const [reduced, setReduced] = useState(false);
+  // Компонент рендерится только на клиенте (ssr: false) — window доступен сразу.
+  const [reduced, setReduced] = useState(
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+  const [hoverEnabled, setHoverEnabled] = useState(
+    () => !window.matchMedia("(hover: none)").matches
+  );
+  const [centered, setCentered] = useState(
+    () => window.matchMedia("(max-width: 780px)").matches
+  );
 
   useEffect(() => {
-    setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    const mqReduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const mqHover = window.matchMedia("(hover: none)");
+    const mqNarrow = window.matchMedia("(max-width: 780px)");
+    const sync = () => {
+      setReduced(mqReduced.matches);
+      setHoverEnabled(!mqHover.matches);
+      setCentered(mqNarrow.matches);
+    };
+    mqReduced.addEventListener("change", sync);
+    mqHover.addEventListener("change", sync);
+    mqNarrow.addEventListener("change", sync);
+    return () => {
+      mqReduced.removeEventListener("change", sync);
+      mqHover.removeEventListener("change", sync);
+      mqNarrow.removeEventListener("change", sync);
+    };
   }, []);
 
   if (reduced) return null; // статичный CSS-fallback остаётся видимым
@@ -226,7 +263,7 @@ export default function HeroVisual() {
         }
       }}
     >
-      <ParticleWords />
+      <ParticleWords hoverEnabled={hoverEnabled} centered={centered} />
     </Canvas>
   );
 }
