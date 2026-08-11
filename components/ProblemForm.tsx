@@ -1,12 +1,32 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 type State = "idle" | "sending" | "sent" | "error";
 
 export default function ProblemForm() {
   const [state, setState] = useState<State>("idle");
   const [error, setError] = useState("");
+  const [problem, setProblem] = useState("");
+  const problemRef = useRef<HTMLTextAreaElement>(null);
+  const lastPrefill = useRef("");
+  useEffect(() => {
+    function onPrefill(event: Event) {
+      const text = (event as CustomEvent<{ text?: string }>).detail?.text;
+      if (!text) return;
+      setProblem((current) => {
+        if (current && current !== lastPrefill.current) return current; // не затираем текст, который человек уже написал
+        lastPrefill.current = text;
+        return text;
+      });
+      window.setTimeout(() => {
+        const el = problemRef.current;
+        if (el) { el.focus({ preventScroll: true }); el.setSelectionRange(el.value.length, el.value.length); }
+      }, 650);
+    }
+    window.addEventListener("prefill-problem", onPrefill);
+    return () => window.removeEventListener("prefill-problem", onPrefill);
+  }, []);
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setState("sending"); setError("");
@@ -20,7 +40,7 @@ export default function ProblemForm() {
   }
   if (state === "sent") return <div className="formSuccess"><strong>Заявка ушла.</strong><br />Вернёмся с вопросами в течение дня.</div>;
   return <form className="problemForm" onSubmit={submit}>
-    <label>Что у вас ломается?<textarea required name="problem" placeholder="Например: заявки остаются в Telegram, и менеджеры не знают, кто уже ответил." rows={4} /></label>
+    <label>Что у вас ломается?<textarea required name="problem" ref={problemRef} value={problem} onChange={(event) => setProblem(event.target.value)} placeholder="Например: заявки остаются в Telegram, и менеджеры не знают, кто уже ответил." rows={4} /></label>
     <div className="formGrid">
       <label>Где болит?<select required name="area" defaultValue=""><option value="" disabled>Выберите процесс</option><option>Заявки</option><option>Новички</option><option>Смены</option><option>Документы</option><option>Продажи</option><option>Другое</option></select></label>
       <label>Ваша роль<select required name="role" defaultValue=""><option value="" disabled>Выберите роль</option><option>Собственник</option><option>Руководитель отдела</option><option>Другое</option></select></label>

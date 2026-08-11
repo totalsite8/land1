@@ -3,3 +3,99 @@
 @media(max-width:780px){.topRight span{display:none}.hero{flex-direction:column;align-items:flex-start;justify-content:center;min-height:calc(100vh - 74px);min-height:calc(100svh - 74px);padding-top:40px;padding-bottom:70px}.heroCopy{display:contents}.hero .eyebrow{order:1}.hero h1{order:2}.heroText{order:4}.heroCopy .button{order:5}.knot{position:relative;right:auto;top:auto;order:3;width:100%;height:min(34vw,150px);margin:clamp(8px,2.5vw,16px) 0 clamp(18px,5vw,28px)}.knot canvas{pointer-events:none}.hero .h1Tail{display:none}.hero h1{font-size:clamp(48px,14vw,80px)}.heroText{max-width:380px}.heroFoot{left:20px;right:auto}.buttonGhost{order:6;margin-left:0;margin-top:12px}.sceneGrid,.solutions,.catalogue,.formSection{grid-template-columns:1fr}.sceneGrid article{min-height:170px}.solutions,.catalogue,.formSection{gap:52px}.processTitle{display:block}.process ol{grid-template-columns:1fr 1fr;margin-top:45px}.process li span{margin-bottom:22px}.catalogueList a{font-size:15px}.catalogueList small{display:none}.detailsHead{display:block}.detailsHead h2{margin:0 0 24px}.caseHead{grid-template-columns:1fr;gap:12px}.caseBody,.caseGrid{grid-template-columns:1fr;gap:30px}.formGrid{grid-template-columns:1fr}.faq{padding-top:70px;padding-bottom:70px}footer{display:block}footer>*{display:block;margin:12px 0}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}.knot canvas{display:none}}
 .formError{margin:13px 0 0;color:#a21f16;font-size:12px;line-height:1.5}.formError a{font-weight:800}.button:disabled{opacity:.6;cursor:wait}
+
+/* ===== Доработка блоков: CTA, расширенные тексты, интерактив ===== */
+.rv{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease;will-change:opacity,transform}
+.rv.on{opacity:1;transform:none}
+.buttonLime{background:var(--lime);color:var(--ink);border-color:var(--lime)}
+.buttonLime:hover{background:var(--paper);border-color:var(--paper);color:var(--ink)}
+.ghostLight{display:inline-flex;align-items:center;gap:14px;background:transparent;color:var(--paper);padding:15px 18px;text-decoration:none;font-size:13px;font-weight:700;border:1px solid var(--paper);transition:.2s}
+.ghostLight:hover{background:var(--paper);color:var(--ink)}
+.diagnosisCtas{display:flex;gap:16px;flex-wrap:wrap;justify-content:flex-end;margin-top:34px}
+.sceneGrid .rv{display:flex}
+.sceneGrid article{position:relative;flex:1;display:flex;flex-direction:column;transition:background .25s ease}
+.sceneGrid article:hover,.sceneGrid article.open{background:#1d201b}
+.sceneMore{max-height:0;opacity:0;overflow:hidden;transition:max-height .4s ease,opacity .3s ease}
+.sceneGrid article.open .sceneMore{max-height:320px;opacity:1}
+.sceneMore p{color:#e8e5da;font-size:13px}
+.sceneMore a{display:inline-flex;align-items:center;gap:6px;font:11px var(--mono);letter-spacing:.05em;color:#f5f2ea;text-decoration:none;border-bottom:1px solid #6e851d;padding-bottom:3px;width:max-content;transition:.2s}
+.sceneMore a:hover{border-color:var(--lime);color:var(--lime)}
+.sceneToggle{margin-top:auto;padding:18px 0 0;background:none;border:0;cursor:pointer;color:#aeb0a7;font:11px var(--mono);letter-spacing:.08em;text-align:left;transition:color .2s;width:max-content}
+.sceneToggle:hover{color:var(--lime)}
+.solutionIntro{position:sticky;top:26px;align-self:start}
+.introText{max-width:380px;font-size:14px;line-height:1.65;margin:30px 0 0}
+.introCta{margin:34px 0 0}
+.solution>span{transition:color .2s}
+.solution:hover>span{color:var(--hot)}
+.solutionAud{font:10px var(--mono);letter-spacing:.05em;color:#66665f;line-height:1.6;margin:14px 0 18px;max-width:440px}
+.catalogueSticky{position:sticky;top:26px;align-self:start}
+.catMain{display:flex;flex-direction:column;min-width:0}
+.catPain{font:11px var(--mono);letter-spacing:.02em;line-height:1.5;color:#43510f;display:block;max-height:0;opacity:0;overflow:hidden;margin-top:0;transition:max-height .3s ease,opacity .25s ease,margin-top .3s ease;align-self:flex-start}
+.catalogueList a:hover .catPain,.catalogueList a:focus-visible .catPain{max-height:48px;opacity:1;margin-top:7px}
+.catalogueList a:hover .catTag{color:var(--hot)}
+.catalogueCta{margin-top:38px;display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.catalogueCta .button:hover{background:var(--paper)}
+.catalogueCta p{font:11px var(--mono);letter-spacing:.04em;line-height:1.6;margin:0;max-width:230px;color:#4c5c14}
+.caseActions{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.prefillBtn{display:inline-flex;align-items:center;gap:10px;background:transparent;border:1px dashed #8a887f;color:var(--ink);padding:15px 18px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:.2s}
+.prefillBtn:hover{border-color:var(--ink);border-style:solid}
+.prefillBtn.done{background:var(--lime);border:1px solid var(--ink)}
+.caseFlow{transition:border-color .25s ease,transform .25s ease}
+.caseFlow:hover{border-color:var(--ink);transform:translateY(-3px)}
+.processSteps{list-style:none;padding:0;margin:70px 0 0;display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.processSteps li{border-top:1px solid var(--ink);padding-top:13px;cursor:pointer;transition:transform .25s ease,border-color .25s ease}
+.processSteps li.active{border-top:2px solid var(--hot);transform:translateY(-4px)}
+.processSteps li span{font:11px var(--mono);display:block;margin-bottom:40px;transition:color .2s}
+.processSteps li.active span{color:var(--hot)}
+.processSteps li b{display:block;font-size:17px}
+.processSteps li p{font-size:13px;line-height:1.5}
+.stepMeta{display:block;font:10px var(--mono);font-style:normal;letter-spacing:.08em;color:#55681a;margin-top:14px;opacity:0;transform:translateY(6px);transition:opacity .3s ease,transform .3s ease}
+.processSteps li.active .stepMeta{opacity:1;transform:none}
+.processCta{display:flex;align-items:center;gap:26px;margin-top:60px;flex-wrap:wrap}
+.processCta p{font:11px var(--mono);letter-spacing:.04em;line-height:1.7;max-width:280px;margin:0;color:#45463f}
+.howCheck{list-style:none;margin:30px 0 30px;padding:0;display:grid;gap:13px;max-width:410px}
+.howCheck li{display:grid;grid-template-columns:24px 1fr;gap:10px;font-size:14px;line-height:1.5;align-items:start}
+.howCheck li span{font:10px var(--mono);width:20px;height:20px;border:1px solid var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.formPromise{font:10px var(--mono);letter-spacing:.06em;line-height:1.8;margin:28px 0 0;max-width:400px;color:#7a1508}
+.faq summary span{transition:transform .25s ease}
+.faq details[open] summary span{transform:rotate(45deg)}
+.faq details[open] p{animation:faqIn .3s ease}
+@keyframes faqIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.faqCta{margin-top:48px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.faqCta p{font:11px var(--mono);letter-spacing:.04em;color:#66665f;margin:0;max-width:260px;line-height:1.7}
+footer{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:44px;align-items:start;padding:44px clamp(20px,5vw,78px)}
+.footCol p{color:#aeb0a7;font-size:13px;line-height:1.6;max-width:300px;margin:16px 0 0}
+.footNote{font:10px var(--mono)!important;letter-spacing:.08em;line-height:1.9!important;color:#8b8d82!important;margin-top:20px!important}
+.footNav{display:grid;gap:10px;align-content:start}
+.footNav a{color:#d5d3cb;text-decoration:none;font-size:13px;width:max-content;border-bottom:1px solid transparent;transition:.2s}
+.footNav a:hover{color:var(--lime);border-color:var(--lime)}
+.footContacts{display:grid;gap:12px;justify-items:start}
+.footContacts a{color:var(--paper);font:13px var(--mono);text-decoration:none;border-bottom:1px solid #555851;transition:.2s}
+.footContacts a:hover{color:var(--lime);border-color:var(--lime)}
+@media(max-width:780px){
+.solutionIntro,.catalogueSticky{position:static}
+.sceneGrid article{min-height:0}
+.diagnosisCtas{justify-content:flex-start}
+.diagnosisCtas .button{width:100%;justify-content:space-between}
+.diagnosisCtas .ghostLight{width:100%;justify-content:space-between}
+.introCta{display:flex;width:100%;justify-content:space-between}
+.processSteps{grid-template-columns:1fr 1fr;margin-top:45px}
+.processSteps li{transform:none}
+.processSteps li span{margin-bottom:22px}
+.catalogueList a{grid-template-columns:34px 1fr}
+.catalogueList .catPain{display:block;max-height:none;opacity:1;margin-top:7px}
+.catalogueCta{align-items:flex-start}
+.catalogueCta .button{width:100%;justify-content:space-between}
+.caseActions .button{width:100%;justify-content:space-between}
+.prefillBtn{width:100%;justify-content:center}
+.processCta{align-items:flex-start}
+.processCta .button{width:100%;justify-content:space-between}
+.faqCta .button{width:100%;justify-content:space-between}
+.howCheck{max-width:none}
+.footCol,.footNav,.footContacts{display:block;margin:0 0 14px}
+.footNav a{display:block;margin:10px 0}
+.footContacts a{display:inline-block;margin:8px 18px 8px 0}
+footer{display:block;padding:29px 20px}
+}
+@media(max-width:520px){.processSteps{grid-template-columns:1fr}}
+@media(hover:none){.catPain{max-height:none;opacity:1;margin-top:7px}}
