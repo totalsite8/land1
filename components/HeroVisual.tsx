@@ -1,6 +1,6 @@
 "use client";
 
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
@@ -78,6 +78,14 @@ function ParticleWords({ hoverEnabled, centered }: { hoverEnabled: boolean; cent
   const prevWordIndex = useRef(0);
   const lastSwitch = useRef(0);
   const sim = useRef<{ positions: Float32Array; velocities: Float32Array } | null>(null);
+
+  // На узких экранах контейнер — узкая «строка слов»: камера придвигается,
+  // чтобы слово заполняло её по высоте без пустых полей сверху и снизу.
+  // Именно придвигаем (а не zoom): точки растут вместе с буквами. На десктопе — как было.
+  const camera = useThree((s) => s.camera);
+  useEffect(() => {
+    camera.position.z = centered ? 2.4 : 6;
+  }, [camera, centered]);
 
   const { words, geometry } = useMemo(() => {
     const sampled = WORDS.map(sampleWord);
