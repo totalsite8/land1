@@ -15,7 +15,7 @@ const WORDS = [
   "КОНВЕРСИЯ", "ОХВАТ", "ВОРОНКА", "МАРЖА", "ПОТОК", "ПРОЦЕСС", "ПОРЯДОК", "ЯСНОСТЬ"
 ];
 const WORD_TIME = 3.4;
-const MAX_PARTICLES = 6500;
+const MAX_PARTICLES = 12000;
 const INK = "#232620";
 const HOT = "#ed4b36";
 const LIME = "#86a51c";
@@ -43,14 +43,13 @@ function sampleWord(word: string): WordData {
   ctx.fillText(word, width / 2, height / 2);
 
   const pixels = ctx.getImageData(0, 0, width, height).data;
-  const stepX = 4;
-  const stepY = 4;
+  const stepX = 3;
+  const stepY = 3;
   const raw: number[] = [];
   for (let y = 0; y < height; y += stepY) {
     for (let x = 0; x < width; x += stepX) {
       if (pixels[(y * width + x) * 4 + 3] > 120) {
-        // Поле уже и смещено вправо, чтобы не заходить на заголовок.
-        raw.push((x - width / 2) / 280 + 0.3, -(y - height / 2) / 280, (Math.random() - 0.5) * 0.45);
+        raw.push((x - width / 2) / 280, -(y - height / 2) / 280, (Math.random() - 0.5) * 0.45);
       }
     }
   }
@@ -59,7 +58,17 @@ function sampleWord(word: string): WordData {
   for (let i = 0; i < raw.length; i += stride * 3) {
     homes.push(raw[i], raw[i + 1], raw[i + 2]);
   }
-  return { homes: new Float32Array(homes), count: homes.length / 3 };
+  // Авто-вписывание: слово никогда не выходит за боковые рамки видимой зоны.
+  let maxAbsX = 0.0001;
+  for (let i = 0; i < homes.length; i += 3) maxAbsX = Math.max(maxAbsX, Math.abs(homes[i]));
+  const fit = Math.min(1, 1.85 / maxAbsX);
+  const out = new Float32Array(homes.length);
+  for (let i = 0; i < homes.length; i += 3) {
+    out[i] = homes[i] * fit + 0.3;
+    out[i + 1] = homes[i + 1];
+    out[i + 2] = homes[i + 2];
+  }
+  return { homes: out, count: homes.length / 3 };
 }
 
 function ParticleWords() {
@@ -68,6 +77,8 @@ function ParticleWords() {
   const prevWordIndex = useRef(0);
   const lastSwitch = useRef(0);
   const sim = useRef<{ positions: Float32Array; velocities: Float32Array } | null>(null);
+  // Сильно сглаженный указатель: резкое движение мыши превращается в медленный дрейф.
+  const smoothMouse = useRef({ x: 0, y: 0 });
 
   const { words, geometry } = useMemo(() => {
     const sampled = WORDS.map(sampleWord);
@@ -125,21 +136,25 @@ function ParticleWords() {
     const morph = Math.min(1, (t - lastSwitch.current) / 1.1);
     const blend = morph * morph * (3 - 2 * morph);
 
-    // Мировые координаты курсора на плоскости частиц.
+    // Мировые координаты курсора на плоскости частиц (сглаженные).
     const halfW = state.viewport.width / 2;
     const halfH = state.viewport.height / 2;
-    const mx = state.pointer.x * halfW;
-    const my = state.pointer.y * halfH;
+    const rawMx = state.pointer.x * halfW;
+    const rawMy = state.pointer.y * halfH;
+    smoothMouse.current.x += (rawMx - smoothMouse.current.x) * 0.045;
+    smoothMouse.current.y += (rawMy - smoothMouse.current.y) * 0.045;
+    const mx = smoothMouse.current.x;
+    const my = smoothMouse.current.y;
 
     const { positions, velocities } = s;
     const attr = geometry.getAttribute("position") as THREE.BufferAttribute;
-    // Шёлковая физика: слабая пружина, живой микродрейф каждой частицы
-    // и широкое мягкое обтекание курсора с тангенциальной завивкой.
+    // «Сонная» физика: слабая пружина, собственное дыхание каждой частицы
+    // и едва заметный прибрежный вал под курсором — частицы плавно приподнимаются.
     const springK = 0.012;
     const friction = 0.94;
-    const repelRadius = 1.8;
-    const repelPower = 0.07;
-    const swirlPower = 0.05;
+    const swellRadius = 1.6;
+    const liftPower = 0.011;
+    const driftPower = 0.009;
     const driftAmp = 0.045;
 
     for (let i = 0; i < positions.length; i += 3) {
@@ -163,13 +178,12 @@ function ParticleWords() {
       const dx = px - mx;
       const dy = py - my;
       const dist = Math.hypot(dx, dy);
-      if (dist < repelRadius && dist > 0.0001) {
-        const t01 = 1 - dist / repelRadius;
-        const ease = t01 * t01;
-        const nx = dx / dist;
-        const ny = dy / dist;
-        vx += nx * ease * repelPower + (-ny) * ease * swirlPower;
-        vy += ny * ease * repelPower + nx * ease * swirlPower;
+      if (dist < swellRadius && dist > 0.0001) {
+        const t01 = 1 - dist / swellRadius;
+        const ease = t01 * t01 * (3 - 2 * t01); // smoothstep — вал без краёв
+        vz += ease * liftPower;
+        vx += (dx / dist) * ease * driftPower;
+        vy += (dy / dist) * ease * driftPower;
       }
 
       vx *= friction;
@@ -189,7 +203,7 @@ function ParticleWords() {
 
   return (
     <points ref={points} geometry={geometry}>
-      <pointsMaterial size={0.032} sizeAttenuation vertexColors transparent opacity={0.95} />
+      <pointsMaterial size={0.021} sizeAttenuation vertexColors transparent opacity={0.95} />
     </points>
   );
 }
