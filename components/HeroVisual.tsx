@@ -1,6 +1,6 @@
 "use client";
 
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
@@ -72,7 +72,7 @@ function sampleWord(word: string): WordData {
   return { homes: out, count: homes.length / 3 };
 }
 
-function ParticleWords({ hoverEnabled, centered }: { hoverEnabled: boolean; centered: boolean }) {
+function ParticleWords({ hoverEnabled }: { hoverEnabled: boolean }) {
   const points = useRef<THREE.Points>(null);
   const wordIndex = useRef(0);
   const prevWordIndex = useRef(0);
@@ -89,13 +89,8 @@ function ParticleWords({ hoverEnabled, centered }: { hoverEnabled: boolean; cent
     return () => window.removeEventListener("pointermove", onMove);
   }, []);
 
-  // На узких экранах контейнер — узкая «строка слов»: камера придвигается,
-  // чтобы слово заполняло её по высоте без пустых полей сверху и снизу.
-  // Именно придвигаем (а не zoom): точки растут вместе с буквами. На десктопе — как было.
-  const camera = useThree((s) => s.camera);
-  useEffect(() => {
-    camera.position.z = centered ? 2.4 : 6;
-  }, [camera, centered]);
+  // Камера близкая на всех экранах (задана в Canvas): контейнер — узкая «строка слов»
+  // под заголовком, слово заполняет её по высоте без пустых полей.
 
   const { words, geometry } = useMemo(() => {
     const sampled = WORDS.map(sampleWord);
@@ -111,6 +106,15 @@ function ParticleWords({ hoverEnabled, centered }: { hoverEnabled: boolean; cent
         padded[i + 2] = (Math.random() - 0.5) * 2.5;
       }
       return padded;
+    });
+
+    // Левый край каждого слова — группа выравнивается по левому полю,
+    // чтобы блок читался как продолжение фразы заголовка.
+    // Считаем по реальным точкам слова (без добивки «хаосом» до maxCount).
+    const minXs = sampled.map((word) => {
+      let m = Infinity;
+      for (let i = 0; i < word.count * 3; i += 3) m = Math.min(m, word.homes[i]);
+      return m;
     });
 
     const positions = new Float32Array(maxCount * 3);
@@ -133,7 +137,7 @@ function ParticleWords({ hoverEnabled, centered }: { hoverEnabled: boolean; cent
     g.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     g.setAttribute("color", new THREE.BufferAttribute(colors, 3));
     sim.current = { positions, velocities };
-    return { words: { list: wordsPadded, count: maxCount }, geometry: g };
+    return { words: { list: wordsPadded, count: maxCount, minXs }, geometry: g };
   }, []);
 
   useFrame((state) => {
@@ -235,9 +239,12 @@ function ParticleWords({ hoverEnabled, centered }: { hoverEnabled: boolean; cent
       pts.rotation.y = 0;
       pts.rotation.x = 0;
     }
-    // На узких экранах блок стоит в потоке под заголовком:
-    // убираем десктопный сдвиг слова +0.3, чтобы оно было по центру.
-    pts.position.x = centered ? -0.3 : 0;
+    // Выравнивание по левому краю — блок читается как продолжение фразы заголовка.
+    // Смещение кроссфейдится вместе со сменой слова, левый край не дёргается.
+    const prevMinX = words.minXs[prevWordIndex.current];
+    const curMinX = words.minXs[wordIndex.current];
+    const minX = prevMinX + (curMinX - prevMinX) * blend;
+    pts.position.x = -halfW - minX + 0.1;
   });
 
   return (
@@ -255,26 +262,19 @@ export default function HeroVisual() {
   const [hoverEnabled, setHoverEnabled] = useState(
     () => !window.matchMedia("(hover: none)").matches
   );
-  const [centered, setCentered] = useState(
-    () => window.matchMedia("(max-width: 780px)").matches
-  );
 
   useEffect(() => {
     const mqReduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     const mqHover = window.matchMedia("(hover: none)");
-    const mqNarrow = window.matchMedia("(max-width: 780px)");
     const sync = () => {
       setReduced(mqReduced.matches);
       setHoverEnabled(!mqHover.matches);
-      setCentered(mqNarrow.matches);
     };
     mqReduced.addEventListener("change", sync);
     mqHover.addEventListener("change", sync);
-    mqNarrow.addEventListener("change", sync);
     return () => {
       mqReduced.removeEventListener("change", sync);
       mqHover.removeEventListener("change", sync);
-      mqNarrow.removeEventListener("change", sync);
     };
   }, []);
 
@@ -282,7 +282,7 @@ export default function HeroVisual() {
 
   return (
     <Canvas
-      camera={{ position: [0, 0, 6], fov: 40 }}
+      camera={{ position: [0, 0, 2.4], fov: 40 }}
       dpr={[1, 1.75]}
       gl={{ alpha: true, antialias: true }}
       onCreated={() => {
@@ -293,7 +293,7 @@ export default function HeroVisual() {
         }
       }}
     >
-      <ParticleWords hoverEnabled={hoverEnabled} centered={centered} />
+      <ParticleWords hoverEnabled={hoverEnabled} />
     </Canvas>
   );
 }
