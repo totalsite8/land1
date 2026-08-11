@@ -78,6 +78,16 @@ function ParticleWords({ hoverEnabled, centered }: { hoverEnabled: boolean; cent
   const prevWordIndex = useRef(0);
   const lastSwitch = useRef(0);
   const sim = useRef<{ positions: Float32Array; velocities: Float32Array } | null>(null);
+  // Жёсткая привязка к курсору мыши: state.pointer у r3f обновляется, только когда
+  // курсор над canvas, а до первого события он в (0,0) — центре слов. Поэтому
+  // позицию берём сами: window pointermove → client-координаты → координаты мира.
+  // Пока мышь ни разу не двигалась, зоны влияния не существует вовсе.
+  const rawClient = useRef<{ x: number; y: number } | null>(null);
+  useEffect(() => {
+    const onMove = (e: PointerEvent) => { rawClient.current = { x: e.clientX, y: e.clientY }; };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => window.removeEventListener("pointermove", onMove);
+  }, []);
 
   // На узких экранах контейнер — узкая «строка слов»: камера придвигается,
   // чтобы слово заполняло её по высоте без пустых полей сверху и снизу.
@@ -143,12 +153,24 @@ function ParticleWords({ hoverEnabled, centered }: { hoverEnabled: boolean; cent
     const morph = Math.min(1, (t - lastSwitch.current) / 1.1);
     const blend = morph * morph * (3 - 2 * morph);
 
-    // Мировые координаты курсора на плоскости частиц.
-    // Жёсткая привязка: зона влияния строго под курсором, без догоняющего сглаживания.
+    // Мировые координаты реального курсора на плоскости частиц.
+    // Пересчёт идёт из client-координат через rect canvas: зона влияния всегда ровно
+    // там, где курсор сейчас — а когда курсор далеко от блока слов, она далеко и от частиц.
     const halfW = state.viewport.width / 2;
     const halfH = state.viewport.height / 2;
-    const mx = state.pointer.x * halfW;
-    const my = state.pointer.y * halfH;
+    let mx = 0;
+    let my = 0;
+    let pointerActive = false;
+    if (rawClient.current) {
+      const rect = state.gl.domElement.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        const nx = ((rawClient.current.x - rect.left) / rect.width) * 2 - 1;
+        const ny = -(((rawClient.current.y - rect.top) / rect.height) * 2 - 1);
+        mx = nx * halfW;
+        my = ny * halfH;
+        pointerActive = true;
+      }
+    }
 
     const { positions, velocities } = s;
     const attr = geometry.getAttribute("position") as THREE.BufferAttribute;
@@ -178,9 +200,9 @@ function ParticleWords({ hoverEnabled, centered }: { hoverEnabled: boolean; cent
       vy += (homeY - py) * springK;
       vz += (homeZ - pz) * springK;
 
-      // Расступание под курсором — только где есть настоящий hover (мышь/трекпад).
-      // На сенсорных устройствах частицы не реагируют на касания вовсе.
-      if (hoverEnabled) {
+      // Расступание под курсором — только где есть настоящий hover (мышь/трекпад)
+      // и только когда известна честная позиция курсора (была хоть одна pointermove).
+      if (hoverEnabled && pointerActive) {
         const dx = px - mx;
         const dy = py - my;
         const dist = Math.hypot(dx, dy);
