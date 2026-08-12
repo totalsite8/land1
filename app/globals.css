@@ -445,3 +445,45 @@ footer{display:block;padding:29px 20px}
 .mmOverlay .mmDemo a{color:var(--paper);border-color:var(--lime)}
 .mmOverlay .mmDemo a:hover{background:transparent;color:var(--lime)}
 @media(max-width:780px){.caseActions .demoInline{width:100%;justify-content:center}}
+
+/* ===== Демо: вторая волна (очереди, фильтры, сигналы, дубли, черновики) ===== */
+.demoCard.closed{opacity:.75}
+.demoCard.closed .demoNeed{opacity:.55;text-decoration:line-through}
+.demoCard.picked{border-color:#55681a;background:rgba(217,255,90,.22)}
+.demoCard.tRow.alert{border-color:var(--hot)}
+.demoAge{display:inline-flex;align-items:center;gap:5px;font:10px var(--mono);letter-spacing:.04em;color:#8a887f}
+.critSection{margin-bottom:20px}
+.critSection:last-of-type{margin-bottom:0}
+.critLabel{font:10px var(--mono);letter-spacing:.14em;color:#8a887f;margin:0 0 10px}
+.demoThreshold{margin-top:22px;padding-top:18px;border-top:1px dashed #a8a69f}
+.numField{width:100%;background:transparent;border:0;border-bottom:1px solid var(--ink);padding:9px 0 7px;color:var(--ink);font:700 20px var(--mono);outline-offset:3px}
+.demoEditRow{display:grid;grid-template-columns:1fr 1fr auto;gap:14px;align-items:end}
+@media(max-width:520px){.demoEditRow{grid-template-columns:1fr 1fr}}
+.demoEditRow label{display:grid;gap:5px;font:9px var(--mono);letter-spacing:.12em;color:#8a887f}
+.numEdit{width:100%;background:transparent;border:0;border-bottom:1px dashed #a8a69f;padding:6px 0 5px;color:var(--ink);font:700 15px var(--mono);outline-offset:3px}
+.numEdit:focus{border-bottom-style:solid;border-color:var(--ink)}
+.tMargin{justify-self:end;font:11px var(--mono);letter-spacing:.04em;padding:8px 12px;border:1px solid;white-space:nowrap}
+.tMargin.good{color:#3d4d10;border-color:#55681a;background:rgba(217,255,90,.35)}
+.tMargin.bad{color:var(--hot);border-color:var(--hot);background:rgba(237,75,54,.08)}
+.demoStatus{display:inline-flex;align-items:center;gap:5px}
+.demoCardBtns{display:flex;gap:10px;flex-wrap:wrap}
+.demoCardBtns .demoCardCta{margin-top:14px}
+.demoGhostBtn.ghost{border-style:dashed;border-color:#8a887f;color:#66665f}
+.demoGhostBtn.ghost:hover{border-color:var(--hot);background:transparent;color:var(--hot)}
+.demoMore{border-top:1px dashed #a8a69f;padding-top:14px}
+.demoMore summary{cursor:pointer;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;list-style:none}
+.demoMore summary::-webkit-details-marker{display:none}
+.demoOutList{padding-top:12px;display:grid;gap:8px}
+.demoOutList p{margin:0;font-size:12px;line-height:1.5;color:#66665f}
+.demoDrafts{display:grid;gap:12px;margin-top:14px}
+.demoDraft{border:1px solid var(--line);background:#faf8f0;padding:14px}
+.demoDraftHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.demoDraftHead b{font:11px var(--mono);letter-spacing:.08em}
+.demoDraft p{font-size:13px;line-height:1.55;color:#3d3f39;margin:0}
+.demoDraftCta{margin-top:12px;padding:7px 11px}
+.demoAddComp{display:flex;gap:10px;margin:0 0 4px}
+.demoAddComp input{flex:1;background:transparent;border:0;border-bottom:1px solid #a8a69f;padding:9px 0 7px;color:var(--ink);font-size:14px;outline-offset:3px;min-width:0}
+.demoSep{border:0;border-top:1px dashed #a8a69f;margin:22px 0 16px}
+.demoFormTitle.sub{font-size:15px;margin-bottom:14px}
+.demoFilter{margin-bottom:4px}
+@media(max-width:780px){.tMargin{justify-self:stretch;text-align:center}}
