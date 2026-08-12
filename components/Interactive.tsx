@@ -115,7 +115,7 @@ export function CasePrefill({ name }: { name: string }) {
     if (timer.current !== null) window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => setDone(false), 2600);
   }
-  return <button type="button" className={`prefillBtn ${done ? "done" : ""}`} onClick={go}>
+  return <button type="button" className={`prefillBtn ${done ? "done" : ""}`} onClick={go} data-mag>
     {done ? <>Подставили — форма ждёт ниже <ArrowDownRight size={15} /></> : <>Это моя боль — подставить в форму <ArrowUpRight size={15} /></>}
   </button>;
 }

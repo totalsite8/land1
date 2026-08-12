@@ -99,3 +99,30 @@ footer{display:block;padding:29px 20px}
 }
 @media(max-width:520px){.processSteps{grid-template-columns:1fr}}
 @media(hover:none){.catPain{max-height:none;opacity:1;margin-top:7px}}
+
+/* ===== Lusion-level: курсор, ленты, превью, микроотклики ===== */
+.fxDot{position:fixed;top:0;left:0;width:6px;height:6px;border-radius:50%;background:#fff;mix-blend-mode:difference;pointer-events:none;z-index:9999;opacity:0}
+.fxRing{position:fixed;top:0;left:0;width:38px;height:38px;border:1.5px solid rgba(255,255,255,.9);border-radius:50%;mix-blend-mode:difference;pointer-events:none;z-index:9998;opacity:0}
+.hoverPeek{position:fixed;top:0;left:0;width:min(300px,26vw);height:auto;pointer-events:none;z-index:70;opacity:0;border:1px solid var(--ink);box-shadow:0 30px 60px -20px rgba(21,23,20,.45);will-change:transform;background:var(--paper)}
+.tape{overflow:hidden;padding:16px 0;transform:rotate(-1.6deg) scale(1.04);margin:8px 0;user-select:none;cursor:default}
+.tape-hot{background:var(--hot);color:var(--paper)}
+.tape-ink{background:var(--ink);color:var(--lime);transform:rotate(1.4deg) scale(1.04)}
+.tapeInner{display:flex;width:max-content;will-change:transform}
+.tapeRow{display:flex;flex-shrink:0;white-space:nowrap}
+.tapeRow span{display:inline-flex;align-items:baseline;font:700 clamp(18px,2.4vw,30px)/1 Manrope,Arial,sans-serif;letter-spacing:-.02em;padding:0 12px}
+.tapeRow span.em{font:500 italic clamp(20px,2.6vw,32px)/1 "Playfair Display",serif;letter-spacing:0}
+.tapeRow i{font-style:normal;margin-left:24px;opacity:.5}
+.solutionMedia{display:none;margin:8px 0 20px;max-width:440px}
+.solutionMedia img{width:100%;height:auto;display:block;border:1px solid var(--line)}
+@media(hover:none){.solutionMedia{display:block}.fxDot,.fxRing,.hoverPeek{display:none!important}}
+.button svg,.ghostLight svg,.buttonGhost svg,.prefillBtn svg,.contact svg{transition:transform .2s ease}
+.button:hover svg,.ghostLight:hover svg,.buttonGhost:hover svg,.prefillBtn:hover svg,.contact:hover svg{transform:scale(1.18)}
+.catalogueList .catTag svg{transition:transform .2s ease}
+.catalogueList a:hover .catTag svg{transform:translate(3px,-3px)}
+.caseSteps li span{transition:background .2s ease,color .2s ease}
+.caseSteps li:hover span{background:var(--lime)}
+.faq summary{transition:color .2s ease,padding-left .25s ease}
+.faq summary:hover{color:#6e851d;padding-left:8px}
+.sceneMore a svg{vertical-align:-2px}
+[data-mag]{will-change:transform}
+@media(max-width:780px){.tape{padding:12px 0;margin:6px 0}}
