@@ -50,7 +50,7 @@ export default function SiteNav() {
 
   return (
     <>
-      <header className="top" ref={rootRef} onMouseLeave={() => setOpen(-1)}>
+      <header className={mobile ? "top open" : "top"} ref={rootRef} onMouseLeave={() => setOpen(-1)}>
         <a className="brand" href="#top">ЭЙ АЙ, <em>БОЛЬНО</em></a>
         <nav className="mmNav" aria-label="Навигация по сайту">
           <div className="mmTriggers">
