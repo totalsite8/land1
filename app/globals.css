@@ -340,3 +340,108 @@ footer{display:block;padding:29px 20px}
 .mmOverlay .mmGroupH{margin:34px 0 8px}
 }
 @media(max-width:980px) and (prefers-reduced-motion:reduce){.mmOverlay .mmCta{position:static}}
+
+/* ===== Демо-страницы инструментов (/demo/*) ===== */
+.demoBody{min-height:100vh;background:var(--paper);color:var(--ink);display:flex;flex-direction:column;font-family:Manrope,Arial,sans-serif}
+.demoTop{position:sticky;top:0;z-index:60;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px clamp(20px,5vw,78px);border-bottom:1px solid var(--line);background:rgba(244,241,233,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.demoBack{display:inline-flex;align-items:center;gap:8px;font:11px var(--mono);letter-spacing:.06em;text-decoration:none;font-weight:700;border-bottom:1px solid;transition:.2s}
+.demoBack:hover{color:var(--hot);border-color:var(--hot)}
+.demoBadge{font:10px var(--mono);letter-spacing:.08em;padding:7px 12px;border:1px solid var(--hot);color:var(--hot);border-radius:999px;white-space:nowrap}
+.demoHero{padding:clamp(48px,7vw,88px) clamp(20px,5vw,78px) 24px;position:relative}
+.demoTag{font:11px var(--mono);letter-spacing:.08em;margin:0 0 18px;color:#6e851d}
+.demoHero h1{font-size:clamp(36px,5.6vw,78px);font-weight:600;line-height:.95;letter-spacing:-.06em;margin:0;max-width:920px}
+.demoHero h1 em{font-family:"Playfair Display",Georgia,serif;font-weight:500;color:#6e851d}
+.demoLead{max-width:580px;font-size:16px;line-height:1.6;color:#3d3f39;margin:24px 0 0}
+.demoApp{flex:1;display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(26px,4vw,60px);padding:22px clamp(20px,5vw,78px) 80px;align-items:start}
+.demoForm{border:1px solid var(--ink);background:#faf8f0;padding:clamp(18px,2.4vw,30px);position:sticky;top:84px}
+.demoFormTitle{font-size:19px;font-weight:800;letter-spacing:-.02em;margin:0 0 20px}
+.demoForm label{display:block;font-size:12px;font-weight:800;margin-bottom:16px}
+.demoForm input,.demoForm textarea,.demoForm select{display:block;width:100%;background:transparent;border:0;border-bottom:1px solid #a8a69f;border-radius:0;padding:9px 0 7px;outline-offset:3px;resize:vertical;color:var(--ink);font-size:14px;background-image:linear-gradient(90deg,var(--hot),var(--lime));background-repeat:no-repeat;background-position:left bottom;background-size:0% 2px;transition:background-size .45s ease}
+.demoForm input:focus,.demoForm textarea:focus,.demoForm select:focus{background-size:100% 2px}
+.demoForm input::placeholder,.demoForm textarea::placeholder{color:#777770}
+.demoGrid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.demoBtn{cursor:pointer;margin-top:4px;justify-content:space-between;width:100%}
+.demoFootNote{font:10px var(--mono);letter-spacing:.04em;line-height:1.7;color:#66665f;margin:14px 0 0}
+.demoRoles{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.demoRoles button,.demoKinds button{background:transparent;border:1px solid var(--ink);border-radius:999px;padding:9px 16px;font:11px var(--mono);letter-spacing:.05em;cursor:pointer;transition:.2s}
+.demoRoles button:hover,.demoKinds button:hover{background:var(--lime)}
+.demoRoles button.on,.demoKinds button.on{background:var(--ink);color:var(--paper)}
+.demoProgress{display:grid;gap:8px;margin:4px 0 16px}
+.demoProgressBar{height:8px;border:1px solid var(--ink);background:#e3dfd5;overflow:hidden}
+.demoProgressBar i{display:block;height:100%;background:linear-gradient(90deg,#8ae0c8,var(--lime));transition:width .45s cubic-bezier(.2,.7,.2,1)}
+.demoProgress span{font:11px var(--mono);letter-spacing:.05em;color:#3d3f39}
+.demoDone{display:flex;align-items:center;gap:8px;border:1px solid #55681a;background:rgba(217,255,90,.4);padding:13px 15px;font-size:13px;font-weight:800;color:#3d4d10;margin:0 0 6px}
+.demoList{display:grid;gap:14px;align-content:start}
+.demoListHead{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.demoListHead p{font:11px var(--mono);letter-spacing:.05em;color:#3d3f39;margin:0}
+.demoEmpty{border:1px dashed #8a887f;padding:32px;font-size:14px;line-height:1.6;color:#66665f;text-align:center}
+.demoCard{border:1px solid var(--line);background:#fdfcf7;padding:18px;transition:border-color .25s ease,transform .25s ease}
+.demoCard:hover{border-color:var(--ink);transform:translateY(-2px)}
+.demoCard[data-status="done"]{opacity:.72}
+.demoCardTop{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.demoStatus,.demoKind{font:10px var(--mono);letter-spacing:.07em;padding:6px 11px;border-radius:999px;border:1px solid}
+.demoStatus.s-new{border-color:var(--hot);color:var(--hot)}
+.demoStatus.s-progress{border-color:var(--ink);color:var(--ink);background:rgba(21,23,20,.06)}
+.demoStatus.s-done{border-color:#55681a;color:#55681a;background:rgba(217,255,90,.4)}
+.demoKind.k-task{border-color:var(--ink);color:var(--ink)}
+.demoKind.k-stock{border-color:#7c5cd6;color:#7c5cd6}
+.demoKind.k-issue{border-color:var(--hot);color:var(--hot)}
+.demoTime{margin-left:auto;font:11px var(--mono);color:#8a887f}
+.demoKill{margin-left:auto;background:none;border:0;cursor:pointer;color:#8a887f;padding:6px;transition:.2s}
+.demoTime+.demoKill{margin-left:0}
+.demoKill:hover{color:var(--hot)}
+.demoNeed{font-size:16px;font-weight:700;line-height:1.5;margin:4px 0 12px;letter-spacing:-.01em}
+.shiftCard.closed .demoNeed{opacity:.55;text-decoration:line-through}
+.demoMetaGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px}
+.demoMetaGrid span{display:grid;gap:3px;font-size:13px;line-height:1.5;color:#3d3f39}
+.demoMetaGrid .wide{grid-column:1/-1}
+.demoMetaGrid b{font:9px var(--mono);letter-spacing:.12em;color:#8a887f;font-weight:400}
+.demoGhostBtn{display:inline-flex;align-items:center;gap:8px;background:none;border:1px solid var(--ink);padding:9px 13px;font:11px var(--mono);letter-spacing:.04em;cursor:pointer;transition:.2s;color:var(--ink)}
+.demoGhostBtn:hover{background:var(--ink);color:var(--paper)}
+.demoCardCta{margin-top:14px}
+.demoSteps{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.demoSteps li{display:flex;gap:14px;align-items:flex-start;border:1px solid var(--line);background:#fdfcf7;padding:14px 16px;transition:.2s}
+.demoSteps li:hover{border-color:var(--ink)}
+.demoSteps li.done{background:rgba(217,255,90,.28)}
+.demoSteps li.done p{opacity:.55;text-decoration:line-through}
+.demoCheck{flex:none;width:24px;height:24px;border:1px solid var(--ink);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink);transition:.2s;margin-top:2px}
+.demoCheck:hover{background:var(--lime)}
+.demoSteps li>div{display:grid;grid-template-columns:30px;gap:4px}
+.demoSteps li>div{display:block}
+.demoSteps li b{font:11px var(--mono);color:#8a887f}
+.demoSteps li p{font-size:14px;line-height:1.55;margin:4px 0 0}
+.demoSteps li small{font:9px var(--mono);letter-spacing:.1em;color:#6e851d}
+.demoAddStep{display:grid;gap:12px;border:1px dashed #8a887f;padding:16px;margin-top:4px}
+.demoAddStep input{width:100%;background:transparent;border:0;border-bottom:1px solid #a8a69f;padding:9px 0 7px;color:var(--ink);font-size:14px;outline-offset:3px}
+.demoReset{width:max-content}
+.demoFoot{border-top:1px solid var(--line);padding:26px clamp(20px,5vw,78px) 44px;font-size:14px;line-height:1.65;color:#3d3f39}
+.demoFoot p{max-width:640px;margin:0}
+.demoFoot a{font-weight:800;text-decoration:none;border-bottom:1px solid;transition:.2s}
+.demoFoot a:hover{color:var(--hot);border-color:var(--hot)}
+@media(max-width:980px){
+.demoApp{grid-template-columns:1fr;padding:10px clamp(16px,4vw,40px) 60px}
+.demoForm{position:static}
+.demoBadge{font-size:9px;padding:6px 9px;letter-spacing:.05em}
+.demoMetaGrid{grid-template-columns:1fr}
+.demoTop{padding:12px 16px}
+.demoHero{padding:36px 16px 18px}
+.demoApp{padding-left:16px;padding-right:16px}
+.demoGrid2{grid-template-columns:1fr}
+.demoReset{width:100%;justify-content:center}
+}
+@media(prefers-reduced-motion:reduce){.demoCard,.demoSteps li,.demoProgressBar i{transition:none!important}}
+
+/* ===== Ссылки «Попробовать демо» на главной и в меню ===== */
+.solutionArt a.demoTry,.solutionArt a.demoTry:visited{background:rgba(217,255,90,.16);border:1px solid var(--lime);border-bottom:1px solid var(--lime);color:var(--lime);padding:9px 15px;border-radius:999px}
+.solutionArt a.demoTry:hover{background:var(--lime);color:var(--ink)}
+.demoInline{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--ink);color:var(--ink);padding:15px 18px;font-size:13px;font-weight:700;text-decoration:none;transition:.2s;position:relative;overflow:hidden}
+.demoInline:hover{background:var(--lime)}
+.demoInline svg{transition:transform .2s ease}
+.demoInline:hover svg{transform:scale(1.18)}
+.mmDemo{margin:14px 0 0;font:11px var(--mono);letter-spacing:.04em;color:#66665f;line-height:2.1}
+.mmDemo a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--hot);padding-bottom:2px;transition:.2s}
+.mmDemo a:hover{background:var(--lime)}
+.mmOverlay .mmDemo{color:#a9ab9f;margin-top:14px}
+.mmOverlay .mmDemo a{color:var(--paper);border-color:var(--lime)}
+.mmOverlay .mmDemo a:hover{background:transparent;color:var(--lime)}
+@media(max-width:780px){.caseActions .demoInline{width:100%;justify-content:center}}

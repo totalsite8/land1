@@ -87,6 +87,7 @@ export default function SiteNav() {
           <p className="mmGroupH">Проверяем спрос — ваша заявка двигает очередь</p>
           <div className="mmGrid mmGridTools">{queue.map(toolLink)}</div>
           <div className="mmFoot"><a className="buttonGhost" style={{ marginLeft: 0 }} href="#details" onClick={closeAll}>Весь каталог в деталях <ArrowDownRight size={16} /></a><p className="mmNote">Нажмите на инструмент — откроется его разбор: ситуация, боль, пилот, шаги.</p></div>
+          <p className="mmDemo">Живые демо уже работают: <a href="/demo/briefbox" onClick={closeAll}>BriefBox</a> · <a href="/demo/onboardone" onClick={closeAll}>OnboardOne</a> · <a href="/demo/shifthandover" onClick={closeAll}>ShiftHandover</a></p>
         </div>}
 
         {open === 2 && <div className="mmPanel" onMouseEnter={() => setOpen(2)}>
@@ -111,6 +112,7 @@ export default function SiteNav() {
         </div>
         <p className="mmGroupH">Каталог · 15</p>
         <div className="mmCol mmColTools">{microSaas.map(toolLink)}</div>
+        <p className="mmDemo">Живые демо уже работают: <a href="/demo/briefbox" onClick={closeAll}>BriefBox</a> · <a href="/demo/onboardone" onClick={closeAll}>OnboardOne</a> · <a href="/demo/shifthandover" onClick={closeAll}>ShiftHandover</a></p>
         <p className="mmGroupH">Связаться</p>
         <div className="mmCol mmColContacts">
           <a className="mmBig" href="tel:+79037275131"><Phone size={18} /> +7 903 727-51-31</a>
