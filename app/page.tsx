@@ -6,6 +6,7 @@ import { catalogueTools, coreTools, microSaas } from "../components/microSaas";
 import { CasePrefill, DiagnosisCards, ProcessSteps, Reveal } from "../components/Interactive";
 import Marquee from "../components/Marquee";
 import MotionFX from "../components/MotionFX";
+import SiteNav from "../components/SiteNav";
 
 const solutionMedia: Record<string, string> = {
   briefbox: "/media/sol-briefbox.webp",
@@ -18,7 +19,7 @@ const calmWords = ["Одна боль", "Один инструмент", "Отв
 
 export default function Home() {
   return <main>
-    <header className="top"><a className="brand" href="#top">ЭЙ АЙ, <em>БОЛЬНО</em></a><div className="topRight"><span>МИКРОИНСТРУМЕНТЫ / 14</span><a href="https://t.me/bloodaman" target="_blank" rel="noreferrer">TELEGRAM ↗</a></div></header>
+    <SiteNav />
     <section className="hero" id="top">
       <div className="knot"><div className="knotFallback"><i /><i /><i /><i /></div><HeroEnhanced /></div>
       <div className="heroCopy"><p className="eyebrow"><span /> Каталог микроинструментов для малого бизнеса</p><h1>Бизнесу не нужна<br />ещё одна система.<br /><em>Ему больно</em> терять<span className="h1Tail"><br />одно и то же.</span></h1><p className="heroText">Заявки тонут в чатах. Новичков учат по памяти. Смены передают на словах. Мы собираем заявки на микроинструменты, которые распутывают одну ручную операцию за раз.</p><a href="#form" className="button">Описать боль <ArrowDownRight size={18} /></a><a href="#details" className="buttonGhost">Смотреть каталог <ArrowDownRight size={18} /></a></div>
