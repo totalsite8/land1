@@ -17,6 +17,7 @@ export default function Marquee({ words, tone = "hot" }: { words: readonly strin
     let speed = 0;
     let boost = 0;
     let slow = 0;
+    let skew = 0;
     let lastY = window.scrollY;
     let raf = 0;
     let last = performance.now();
@@ -30,14 +31,17 @@ export default function Marquee({ words, tone = "hot" }: { words: readonly strin
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
       const y = window.scrollY;
-      boost += (Math.min(Math.abs(y - lastY) * 3.2, 260) - boost) * 0.08;
+      const dy = y - lastY;
+      boost += (Math.min(Math.abs(dy) * 3.2, 260) - boost) * 0.08;
       lastY = y;
+      const skewGoal = dy === 0 ? 0 : Math.sign(dy) * Math.min(Math.abs(dy) * 0.28, 3);
+      skew += (skewGoal - skew) * 0.06;
       const base = 42 * (1 - slow * 0.82);
       speed += (base + boost - speed) * 0.1;
       x -= speed * dt;
       const half = inner.scrollWidth / 2;
       if (half > 0 && -x >= half) x += half;
-      inner.style.transform = `translate3d(${x.toFixed(2)}px,0,0)`;
+      inner.style.transform = `translate3d(${x.toFixed(2)}px,0,0) skewX(${skew.toFixed(2)}deg)`;
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);

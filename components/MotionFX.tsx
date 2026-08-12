@@ -19,7 +19,15 @@ export default function MotionFX() {
     document.body.append(bar);
 
     let mx = window.innerWidth / 2, my = window.innerHeight / 2, smx = 0.5, smy = 0.5;
-    const onMove = (e: PointerEvent) => { mx = e.clientX; my = e.clientY; };
+    const SPOT = ".sceneGrid article,.solutionArt,.caseFlow,.casePilot,.processSteps li,.catalogueList a,.problemForm,.faq details";
+    const onMove = (e: PointerEvent) => {
+      mx = e.clientX; my = e.clientY;
+      const el = (e.target as Element | null)?.closest?.(SPOT) as HTMLElement | null;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      el.style.setProperty("--mx", `${(e.clientX - r.left).toFixed(0)}px`);
+      el.style.setProperty("--my", `${(e.clientY - r.top).toFixed(0)}px`);
+    };
     if (fine) window.addEventListener("pointermove", onMove, { passive: true });
 
     /* магнитные кнопки + tilt — только при мыши */
@@ -37,17 +45,24 @@ export default function MotionFX() {
         el.addEventListener("mouseleave", leave);
         magHandlers.push({ el, move, leave });
       });
-      document.querySelectorAll<HTMLElement>(".caseFlow").forEach((el) => {
-        const move = (e: MouseEvent) => {
-          const r = el.getBoundingClientRect();
-          const nx = (e.clientX - r.left) / r.width - 0.5;
-          const ny = (e.clientY - r.top) / r.height - 0.5;
-          el.style.transform = `perspective(900px) rotateX(${(-ny * 4).toFixed(2)}deg) rotateY(${(nx * 5).toFixed(2)}deg) translateY(-3px)`;
-        };
-        const leave = () => { el.style.transform = ""; };
-        el.addEventListener("mousemove", move);
-        el.addEventListener("mouseleave", leave);
-        tiltHandlers.push({ el, move, leave });
+      const tiltConf: { sel: string; rx: number; ry: number; ty: number }[] = [
+        { sel: ".caseFlow", rx: 4, ry: 5, ty: 3 },
+        { sel: ".solutionArt", rx: 1.5, ry: 2.4, ty: 3 },
+        { sel: ".sceneGrid article", rx: 2.6, ry: 3.4, ty: 2 }
+      ];
+      tiltConf.forEach(({ sel, rx, ry, ty }) => {
+        document.querySelectorAll<HTMLElement>(sel).forEach((el) => {
+          const move = (e: MouseEvent) => {
+            const r = el.getBoundingClientRect();
+            const nx = (e.clientX - r.left) / r.width - 0.5;
+            const ny = (e.clientY - r.top) / r.height - 0.5;
+            el.style.transform = `perspective(1100px) rotateX(${(-ny * rx).toFixed(2)}deg) rotateY(${(nx * ry).toFixed(2)}deg) translateY(${-ty}px)`;
+          };
+          const leave = () => { el.style.transform = ""; };
+          el.addEventListener("mousemove", move);
+          el.addEventListener("mouseleave", leave);
+          tiltHandlers.push({ el, move, leave });
+        });
       });
       document.querySelectorAll<HTMLElement>("[data-plx]").forEach((el) => {
         plx.push({ el, sp: parseFloat(el.dataset.plx || "0.06"), y: 0 });
