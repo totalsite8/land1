@@ -1,5 +1,4 @@
 import { ArrowDownRight, ArrowUpRight, Phone, Sparkles } from "lucide-react";
-import Image from "next/image";
 import ProblemForm from "../components/ProblemForm";
 import HeroEnhanced from "../components/HeroEnhanced";
 import FlowDiagram from "../components/FlowDiagrams";
@@ -26,6 +25,7 @@ export default function Home() {
       <p className="heroFoot">СОБИРАЕМ ЗАЯВКИ НА РАЗРАБОТКУ<br />ОТВЕТИМ В ТЕЧЕНИЕ ДНЯ</p>
     </section>
     <section className="diagnosis" id="diagnosis">
+      <div className="secBg" aria-hidden />
       <Reveal><p className="sectionNo">01 / ДИАГНОЗ</p><h2 data-plx="0.06">Хаос не появляется<br />вдруг. Он <em>копится.</em></h2></Reveal>
       <DiagnosisCards />
       <Reveal><p className="diagnosisEnd">Не нужен монстр ради одной дырявой операции. Найдите свою боль — соберём для неё маленький инструмент. Ниже пятнадцать таких болей: три в очереди на разработку, остальные ждут заявок.</p>
@@ -33,10 +33,11 @@ export default function Home() {
     </section>
     <section className="solutions" id="solutions">
       <Reveal className="solutionCol"><div className="solutionIntro"><p className="sectionNo">02 / ПЕРВЫЕ УЗЛЫ</p><h2 data-plx="0.06">Начнём с того,<br />что <em>болит каждый день.</em></h2><p className="introText">Заявки, новички, смены — три операции, которые ломаются чаще всего. Они первые в нашей очереди на разработку.</p><a href="#form" className="buttonGhost introCta" data-mag>Сразу описать боль <ArrowDownRight size={18} /></a></div></Reveal>
-      <div>{coreTools.map((tool, index) => <Reveal key={tool.id} delay={index * 90}><article className="solution" data-preview={solutionMedia[tool.id]}><span>{tool.num}</span><div><p className="solutionName">{tool.name}</p><h3>{tool.short?.title}</h3><p>{tool.short?.text}</p><p className="solutionAud">Кому подходит: {tool.audience}</p><div className="solutionMedia"><Image src={solutionMedia[tool.id]} alt={`Визуальная метафора инструмента ${tool.name}`} width={1200} height={900} /></div><div className="solutionCtas"><a href="#form">Хочу разобрать этот процесс <ArrowUpRight size={16} /></a><a href={`#${tool.id}`}>Что внутри <ArrowDownRight size={16} /></a></div></div></article></Reveal>)}</div>
+      <div>{coreTools.map((tool, index) => <Reveal key={tool.id} delay={index * 90}><article className="solution solutionArt"><div className="solutionBg" style={{ backgroundImage: `url(${solutionMedia[tool.id]})` }} aria-hidden /><span>{tool.num}</span><div><p className="solutionName">{tool.name}</p><h3>{tool.short?.title}</h3><p>{tool.short?.text}</p><p className="solutionAud">Кому подходит: {tool.audience}</p><div className="solutionCtas"><a href="#form">Хочу разобрать этот процесс <ArrowUpRight size={16} /></a><a href={`#${tool.id}`}>Что внутри <ArrowDownRight size={16} /></a></div></div></article></Reveal>)}</div>
     </section>
     <Marquee words={painWords} tone="hot" />
     <section className="catalogue" id="catalogue">
+      <div className="auWrap" aria-hidden><i className="au auA" /><i className="au auB" /></div>
       <Reveal className="catalogueCol"><div className="catalogueSticky"><p className="sectionNo">03 / В РАБОТЕ</p><h2 data-plx="0.05">Другие боли тоже<br /><em>не обязаны жить</em><br />в таблицах.</h2><p className="catalogueHint">Строка — ссылка на полное описание: ситуация, боль, план пилота, три шага. Наведите — увидите суть одной фразой.</p></div></Reveal>
       <div>
         <div className="catalogueList">{catalogueTools.map((tool, index) => <Reveal key={tool.id} delay={index * 40}><a href={`#${tool.id}`}><span>{tool.num}</span><div className="catMain">{tool.name}<small className="catPain">{tool.painShort}</small></div><small className="catTag">Проверяем спрос <ArrowUpRight size={14} /></small></a></Reveal>)}</div>
@@ -48,12 +49,14 @@ export default function Home() {
       <div className="caseList">{microSaas.map((tool) => <section className="case" id={tool.id} key={tool.id} aria-labelledby={`${tool.id}-title`}><header className="caseHead"><span className="caseNum">{tool.num}</span><div><p className="caseName">{tool.name}<span className="detailStatus">{tool.core ? "Первый в очереди на разработку" : "Проверяем спрос"}</span></p><h3 id={`${tool.id}-title`}>{tool.title}</h3></div></header><div className="caseBody"><div><p className="caseLabel">РЕАЛЬНАЯ СИТУАЦИЯ</p><p className="caseText">{tool.situation}</p><p className="caseLabel">БОЛЬ БИЗНЕСА</p><p className="caseText caseBiz">{tool.bizPain}</p><p className="caseAudience">Кому подходит: {tool.audience}</p></div><div className="caseFlow"><p className="caseLabel">ВХОД → ДЕЙСТВИЕ → ВИДИМЫЙ РЕЗУЛЬТАТ</p><FlowDiagram id={tool.id} /></div></div><div className="caseGrid"><div className="casePilot"><p className="caseLabel">ЧТО ПРОВЕРЯЕМ В ПИЛОТЕ</p><p className="caseText">{tool.pilot}</p></div><div className="caseSteps"><p className="caseLabel">ТРИ ШАГА РАБОТЫ</p><ol>{tool.steps.map((step, index) => <li key={step.title}><span>{index + 1}</span><div><b>{step.title}</b><p>{step.text}</p></div></li>)}</ol></div></div><div className="caseActions"><a className="button caseCta" href="#form" data-mag>Описать похожую боль <ArrowUpRight size={18} /></a><CasePrefill name={tool.name} /></div></section>)}</div>
     </section>
     <section className="process" id="process">
+      <div className="auWrap" aria-hidden><i className="au auA" /><i className="au auB" /></div>
       <Reveal><p className="sectionNo">05 / БЕЗ МАГИИ</p><div className="processTitle"><h2 data-plx="0.05">Не обещаем<br />«подключить завтра».<br /><em>Сначала поймём.</em></h2><p>Это не коробка и не внедрение на полгода. Наведите на шаг — видно, что нужно от вас и что от нас.</p></div></Reveal>
       <ProcessSteps />
       <Reveal><div className="processCta"><a className="button" href="#form" data-mag>Начать с первого шага <ArrowDownRight size={18} /></a><p>Первый шаг — это форма ниже: одна операция и один живой пример.</p></div></Reveal>
     </section>
     <Marquee words={calmWords} tone="ink" />
     <section className="formSection" id="form">
+      <div className="auWrap" aria-hidden><i className="au auA" /><i className="au auB" /></div>
       <Reveal><div className="formLead"><p className="sectionNo">06 / ВАША ОЧЕРЕДЬ</p><h2 data-plx="0.05">Назовите одну<br />операцию, от которой<br /><em>уже больно.</em></h2><p>Не будем продавать систему на полгода внедрения. Сначала поймём, можно ли распутать именно ваш узел.</p>
         <ul className="howCheck">
           <li><span>1</span>Что именно ломается — одна операция, а не «всё сразу».</li>
