@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import DemoShell from "../../../components/demo/DemoShell";
+import WorkBanner from "../../../components/work/WorkBanner";
 import TenderFitDemo from "../../../components/demo/TenderFitDemo";
 
 export const metadata: Metadata = {
@@ -16,6 +17,7 @@ export default function Page() {
       title={<>В ленте сотни закупок. <em>На столе — ваши.</em></>}
       lead="Задайте тип работ, регион и минимальный бюджет — лента сама отберёт подходящие. Отметки «наше / не наше» точнят подбор каждую неделю."
     >
+      <WorkBanner tool="tenderfit" toolName="TenderFit" />
       <TenderFitDemo />
     </DemoShell>
   );

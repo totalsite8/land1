@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import DemoShell from "../../../components/demo/DemoShell";
+import WorkBanner from "../../../components/work/WorkBanner";
 import QueueDemo from "../../../components/demo/QueueDemo";
 import { partnerreachConfig } from "../../../components/demo/queues";
 
@@ -17,6 +18,7 @@ export default function Page() {
       title={<>Договорённости не умирают. <em>Их видно.</em></>}
       lead="«Вспомню, когда увижу» — так остывает половина партнёрских каналов. Список с датой следующего контакта подсвечивает просроченные связи сам."
     >
+      <WorkBanner tool="partnerreach" toolName="PartnerReach" />
       <QueueDemo config={partnerreachConfig} />
     </DemoShell>
   );

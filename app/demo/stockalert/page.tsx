@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import DemoShell from "../../../components/demo/DemoShell";
+import WorkBanner from "../../../components/work/WorkBanner";
 import { StockAlertDemo } from "../../../components/demo/ThresholdDemo";
 
 export const metadata: Metadata = {
@@ -16,6 +17,7 @@ export default function Page() {
       title={<>Дефицит виден <em>за дни, а не в пик продаж.</em></>}
       lead="Меняйте остаток и темп продаж — инструмент сам считает, на сколько дней хватит и что пора дозаказать. Позиция больше не кончается в пятницу вечером."
     >
+      <WorkBanner tool="stockalert" toolName="StockAlert" />
       <StockAlertDemo />
     </DemoShell>
   );

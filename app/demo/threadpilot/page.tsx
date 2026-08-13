@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import DemoShell from "../../../components/demo/DemoShell";
+import WorkBanner from "../../../components/work/WorkBanner";
 import QueueDemo from "../../../components/demo/QueueDemo";
 import { threadpilotConfig } from "../../../components/demo/queues";
 
@@ -17,6 +18,7 @@ export default function Page() {
       title={<>Десять чатов. <em>Одно поле долга.</em></>}
       lead="Отвечать вы продолжаете там, где привыкли — Telegram, WhatsApp, почта. Здесь живёт только остаток долга: кто ждёт и сколько уже."
     >
+      <WorkBanner tool="threadpilot" toolName="ThreadPilot" />
       <QueueDemo config={threadpilotConfig} />
     </DemoShell>
   );

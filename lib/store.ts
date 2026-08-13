@@ -11,14 +11,37 @@ import { promises as fs } from "fs";
 export type Workspace = { ws: string; tool: string; name: string; createdAt: number };
 export type Item<T = unknown> = { id: string; data: T; createdAt: number; updatedAt: number };
 
-export const WORK_TOOLS = ["briefbox", "onboardone", "shifthandover"] as const;
+export const WORK_TOOLS = [
+  "briefbox", "onboardone", "shifthandover",
+  "forumlead", "rivalmap", "partnerreach", "tenderfit", "pricesignal",
+  "reviewreply", "docchaser", "leaddedup", "invoicenudge", "stockalert",
+  "threadpilot", "ideathread"
+] as const;
 export type WorkTool = (typeof WORK_TOOLS)[number];
 
 export const TOOL_NAMES: Record<WorkTool, string> = {
   briefbox: "BriefBox — заявки одной карточкой",
   onboardone: "OnboardOne — маршрут первых дней",
-  shifthandover: "ShiftHandover — доска передачи смены"
+  shifthandover: "ShiftHandover — доска передачи смены",
+  forumlead: "ForumLead — вопросы клиентов из чатов",
+  rivalmap: "RivalMap — сводка ходов конкурентов",
+  partnerreach: "PartnerReach — договорённости с партнёрами",
+  tenderfit: "TenderFit — тендеры под ваши критерии",
+  pricesignal: "PriceSignal — сигнал «пора пересмотреть цену»",
+  reviewreply: "ReviewReply — одна очередь отзывов",
+  docchaser: "DocChaser — доска документов в работе",
+  leaddedup: "LeadDedup — дубли лидов помечены до работы",
+  invoicenudge: "InvoiceNudge — цепочка напоминаний об оплате",
+  stockalert: "StockAlert — сигнал о дефиците до нуля",
+  threadpilot: "ThreadPilot — открытые диалоги на одном поле",
+  ideathread: "IdeaThread — из мысли цепочка черновиков"
 };
+
+/**
+ * У рабочих версий два типа записей в одном списке items:
+ * data.b — «корзина» (row/lead/comp/change/idea) и служебная data.b==="meta"
+ * для настроек доски (пороги, фильтры, отметки). Компоненты читают свою корзину.
+ */
 
 export class StoreUnavailable extends Error {}
 

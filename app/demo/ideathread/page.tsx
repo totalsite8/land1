@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import DemoShell from "../../../components/demo/DemoShell";
+import WorkBanner from "../../../components/work/WorkBanner";
 import DraftsDemo from "../../../components/demo/DraftsDemo";
 
 export const metadata: Metadata = {
@@ -16,6 +17,7 @@ export default function Page() {
       title={<>Мысль надиктована. <em>Цепочка готова.</em></>}
       lead="Одно наблюдение — три черновика: тезис, разбор, история. Статусы проводят каждый от черновика к очереди на публикацию."
     >
+      <WorkBanner tool="ideathread" toolName="IdeaThread" />
       <DraftsDemo />
     </DemoShell>
   );

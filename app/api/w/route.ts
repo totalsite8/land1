@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { createWorkspace, StoreUnavailable, TOOL_NAMES, WORK_TOOLS } from "../../../lib/store";
+import { createWorkspace, StoreUnavailable, TOOL_NAMES, WORK_TOOLS, type WorkTool } from "../../../lib/store";
+import { seedWorkspace } from "../../../lib/seeds";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,7 +19,13 @@ export async function POST(request: Request) {
   }
   const name = typeof body.name === "string" ? body.name : TOOL_NAMES[tool as keyof typeof TOOL_NAMES];
   try {
-    const ws = await createWorkspace(tool as keyof typeof TOOL_NAMES, name);
+    const ws = await createWorkspace(tool as WorkTool, name);
+    try {
+      await seedWorkspace(ws, tool as WorkTool);
+    } catch (seedCause) {
+      // Пространство уже создано и работоспособно — просто откроется без примеров.
+      console.error("workspace seed failed", seedCause);
+    }
     return NextResponse.json({ ws, url: `/tool/${tool}/${ws}` }, { status: 201 });
   } catch (cause) {
     if (cause instanceof StoreUnavailable) {

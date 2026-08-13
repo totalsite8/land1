@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import DemoShell from "../../../components/demo/DemoShell";
+import WorkBanner from "../../../components/work/WorkBanner";
 import QueueDemo from "../../../components/demo/QueueDemo";
 import { docchaserConfig } from "../../../components/demo/queues";
 
@@ -17,6 +18,7 @@ export default function Page() {
       title={<>Конец поискам «где акт». <em>Он на доске.</em></>}
       lead="Каждый документ — с ответственным, сроком и честным статусом. Просроченные подсвечиваются сами: спрятаться за «я думал, ты» больше не выйдет."
     >
+      <WorkBanner tool="docchaser" toolName="DocChaser" />
       <QueueDemo config={docchaserConfig} />
     </DemoShell>
   );

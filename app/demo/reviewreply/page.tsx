@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import DemoShell from "../../../components/demo/DemoShell";
+import WorkBanner from "../../../components/work/WorkBanner";
 import QueueDemo from "../../../components/demo/QueueDemo";
 import { reviewreplyConfig } from "../../../components/demo/queues";
 
@@ -17,6 +18,7 @@ export default function Page() {
       title={<>Ни один отзыв <em>не висит без ответа.</em></>}
       lead="Отзывы со всех площадок — в одной очереди с возрастом ожидания. Отвечает человек; инструмент гарантирует, что вопрос не потерялся."
     >
+      <WorkBanner tool="reviewreply" toolName="ReviewReply" />
       <QueueDemo config={reviewreplyConfig} />
     </DemoShell>
   );

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import DemoShell from "../../../components/demo/DemoShell";
+import WorkBanner from "../../../components/work/WorkBanner";
 import QueueDemo from "../../../components/demo/QueueDemo";
 import { invoicenudgeConfig } from "../../../components/demo/queues";
 
@@ -17,6 +18,7 @@ export default function Page() {
       title={<>Вежливые напоминания <em>вместо неловких звонков.</em></>}
       lead="Счёт — в цепочку, дальше она ведёт сама: первое, второе, финальное. Карта оплат показывает, кто платит после какого касания."
     >
+      <WorkBanner tool="invoicenudge" toolName="InvoiceNudge" />
       <QueueDemo config={invoicenudgeConfig} />
     </DemoShell>
   );

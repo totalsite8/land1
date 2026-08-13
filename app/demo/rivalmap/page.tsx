@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import DemoShell from "../../../components/demo/DemoShell";
+import WorkBanner from "../../../components/work/WorkBanner";
 import RivalLogDemo from "../../../components/demo/RivalLogDemo";
 
 export const metadata: Metadata = {
@@ -16,6 +17,7 @@ export default function Page() {
       title={<>Ходы конкурентов — <em>из сводки, а не от клиента.</em></>}
       lead="Три-семь конкурентов, четыре типа изменений — цены, услуги, акции, условия. Неделя наблюдений складывается в читаемую сводку для решения."
     >
+      <WorkBanner tool="rivalmap" toolName="RivalMap" />
       <RivalLogDemo />
     </DemoShell>
   );
