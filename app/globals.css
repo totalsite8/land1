@@ -487,3 +487,27 @@ footer{display:block;padding:29px 20px}
 .demoFormTitle.sub{font-size:15px;margin-bottom:14px}
 .demoFilter{margin-bottom:4px}
 @media(max-width:780px){.tMargin{justify-self:stretch;text-align:center}}
+
+/* ===== Рабочие версии (/tool/*) — баннер и шапка ===== */
+.workBanner{display:flex;align-items:center;justify-content:space-between;gap:22px;flex-wrap:wrap;margin:0 clamp(20px,5vw,78px) 6px;border:1px solid var(--ink);background:linear-gradient(105deg,rgba(217,255,90,.55),rgba(217,255,90,.16));padding:18px 22px}
+.workBannerText b{font-size:16px;letter-spacing:-.01em}
+.workBannerText p{font-size:13px;line-height:1.55;color:#3d3f39;margin:6px 0 0;max-width:600px}
+.workBannerBtns{display:flex;gap:10px;flex-wrap:wrap}
+.workBannerBtns .button{border-color:var(--ink);cursor:pointer}
+.workBannerBtns .button:disabled{opacity:.65;cursor:wait}
+.workError{width:100%;font:11px var(--mono);color:var(--hot);margin:6px 0 0;line-height:1.6}
+.demoTopRight{display:flex;align-items:center;gap:12px}
+.demoBadgeWork{border-color:#6e851d;color:#3d4d10;background:rgba(217,255,90,.4)}
+.copyLink{display:inline-flex;align-items:center;gap:7px;background:none;border:1px solid var(--ink);padding:8px 13px;font:10px var(--mono);letter-spacing:.06em;cursor:pointer;transition:.2s;color:var(--ink)}
+.copyLink:hover{background:var(--lime)}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:780px){
+.workBanner{margin:0 16px 4px;padding:16px}
+.workBannerBtns,.workBannerBtns .button{width:100%}
+.workBannerBtns .button{justify-content:space-between}
+.workBannerBtns .demoGhostBtn{width:100%;justify-content:center}
+.demoTopRight{gap:8px}
+.demoBadgeWork{display:none}
+}
+@media(prefers-reduced-motion:reduce){.spin{animation:none!important}}

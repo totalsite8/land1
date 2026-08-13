@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import DemoShell from "../../../components/demo/DemoShell";
 import ShiftHandoverDemo from "../../../components/demo/ShiftHandoverDemo";
+import WorkBanner from "../../../components/work/WorkBanner";
 
 export const metadata: Metadata = {
   title: "ShiftHandover — попробовать демо. Доска передачи смены",
@@ -16,6 +17,7 @@ export default function Page() {
       title={<>Смена не заканчивается в чужой голове. <em>Она на доске.</em></>}
       lead="Перед уходом смена оставляет задачи, остатки и инциденты одним списком. Утренняя смена открывает доску — и принимает дела, а не догадки. Попробуйте оставить запись и «принять» её следующей сменой."
     >
+      <WorkBanner tool="shifthandover" toolName="ShiftHandover" />
       <ShiftHandoverDemo />
     </DemoShell>
   );

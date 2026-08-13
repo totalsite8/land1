@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import DemoShell from "../../../components/demo/DemoShell";
 import OnboardOneDemo from "../../../components/demo/OnboardOneDemo";
+import WorkBanner from "../../../components/work/WorkBanner";
 
 export const metadata: Metadata = {
   title: "OnboardOne — попробовать демо. Маршрут первых дней новичка",
@@ -16,6 +17,7 @@ export default function Page() {
       title={<>Новичок не учится на слухах. <em>Он идёт по маршруту.</em></>}
       lead="Выберите роль — получите маршрут первых дней: что сделать, у кого спросить, что проверить. Отмечайте шаги, добавляйте свои. Знание остаётся в команде, даже если ушёл «тот, кто помнит»."
     >
+      <WorkBanner tool="onboardone" toolName="OnboardOne" />
       <OnboardOneDemo />
     </DemoShell>
   );

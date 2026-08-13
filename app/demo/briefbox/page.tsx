@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import DemoShell from "../../../components/demo/DemoShell";
 import BriefBoxDemo from "../../../components/demo/BriefBoxDemo";
+import WorkBanner from "../../../components/work/WorkBanner";
 
 export const metadata: Metadata = {
   title: "BriefBox — попробовать демо. Заявка одной карточкой",
@@ -16,6 +17,7 @@ export default function Page() {
       title={<>Заявка без квеста. <em>Всё — в одной карточке.</em></>}
       lead="Слева — то, что менеджер обычно собирает по памяти из трёх чатов. Справа — список, где каждая заявка видна целиком и никуда не теряется. Попробуйте: это та же рука, только всё на месте."
     >
+      <WorkBanner tool="briefbox" toolName="BriefBox" />
       <BriefBoxDemo />
     </DemoShell>
   );
