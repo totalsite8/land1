@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowDownRight, Trash2 } from "lucide-react";
+import { ArrowDownRight } from "lucide-react";
 import useBuckets from "./useBuckets";
-import { WorkStateBox } from "./workUi";
+import { ConfirmKill, SyncMark, WorkStateBox } from "./workUi";
 
 type CompRow = { key: string; name: string };
 type ChangeType = "price" | "service" | "promo" | "term";
@@ -17,7 +17,7 @@ function dateLabel(ts: number) {
 }
 
 export default function RivalLogWork({ ws }: { ws: string }) {
-  const { bucket, add, remove, state, reload } = useBuckets(ws);
+  const { bucket, add, remove, state, reload, pending, syncedAt } = useBuckets(ws);
   const [compKey, setCompKey] = useState("");
   const [type, setType] = useState<ChangeType>("price");
   const [text, setText] = useState("");
@@ -63,7 +63,7 @@ export default function RivalLogWork({ ws }: { ws: string }) {
         </div>
         <form className="demoAddComp" onSubmit={(event) => { event.preventDefault(); void addComp(); }}>
           <input value={newComp} onChange={(event) => setNewComp(event.target.value)} placeholder="Добавить конкурента — название" maxLength={60} />
-          <button className="demoGhostBtn" type="submit">Добавить</button>
+          <button className="demoGhostBtn" type="submit" disabled={pending}>Добавить</button>
         </form>
         <hr className="demoSep" />
         <p className="demoFormTitle sub">Зафиксировать изменение</p>
@@ -73,14 +73,14 @@ export default function RivalLogWork({ ws }: { ws: string }) {
           ))}
         </div>
         <label>Что изменилось<textarea rows={3} value={text} onChange={(event) => setText(event.target.value)} placeholder="Факт и источник: что, где и как заметили" /></label>
-        <button className="button demoBtn" type="button" onClick={() => void addChange()}>Внести в общую сводку <ArrowDownRight size={16} /></button>
-        {loud ? <p className="formError">{loud}</p> : null}
+        <button className="button demoBtn" type="button" onClick={() => void addChange()} disabled={pending}>{pending ? "Сохраняю…" : <>Внести в общую сводку <ArrowDownRight size={16} /></>}</button>
+        {loud ? <p className="formError" role="alert">{loud}</p> : null}
         <p className="demoFootNote">Фиксируются публичные изменения: сайты, прайсы, анонсы. Сводка общая — записи всех наблюдателей складываются в одну картину недели.</p>
       </div>
 
       <div className="demoList">
         <div className="demoListHead">
-          <p>Сводка за 7 дней — {byType} · обновление каждые 15 сек</p>
+          <p>Сводка за 7 дней — {byType} · <SyncMark ts={syncedAt} /></p>
         </div>
         <div className="demoKinds demoFilter">
           <button type="button" className={filter === "all" ? "on" : ""} onClick={() => setFilter("all")}>Все</button>
@@ -95,7 +95,7 @@ export default function RivalLogWork({ ws }: { ws: string }) {
                 <span className="demoKind k-task">{compName(change.data.compKey)}</span>
                 <span className={`demoStatus ${change.data.type === "price" ? "s-new" : change.data.type === "promo" ? "s-progress" : "s-done"}`}>{typeLabels[change.data.type].toUpperCase()}</span>
                 <span className="demoTime">{dateLabel(change.data.createdAt)}</span>
-                <button type="button" className="demoKill" onClick={() => void remove(change.id)} aria-label="Удалить запись"><Trash2 size={14} /></button>
+                <ConfirmKill onKill={() => void remove(change.id)} label="Удалить запись" disabled={pending} />
               </div>
               <p className="demoNeed">{change.data.text}</p>
             </article>

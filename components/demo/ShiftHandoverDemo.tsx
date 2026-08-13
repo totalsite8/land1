@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowDownRight, ArrowUpRight, Check, Trash2 } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Check } from "lucide-react";
+import { ConfirmKill } from "../work/workUi";
 
 type Note = {
   id: string;
@@ -86,7 +87,7 @@ export default function ShiftHandoverDemo() {
             <div className="demoCardTop">
               <span className={`demoKind k-${note.kind}`}>{kindLabels[note.kind]}</span>
               <span className="demoTime">{timeLabel(note.createdAt)}</span>
-              <button type="button" className="demoKill" onClick={() => remove(note.id)} aria-label="Удалить запись"><Trash2 size={14} /></button>
+              <ConfirmKill onKill={() => remove(note.id)} label="Удалить запись" />
             </div>
             <p className="demoNeed">{note.text}</p>
             <button type="button" className="demoGhostBtn demoCardCta" onClick={() => toggle(note.id)}>

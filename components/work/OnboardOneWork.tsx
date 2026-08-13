@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowDownRight, Check, RotateCcw } from "lucide-react";
 import useWork from "./useWork";
-import { WorkStateBox } from "./workUi";
+import { SyncMark, WorkStateBox } from "./workUi";
 
 type RoleStep = { text: string; done: boolean; custom?: boolean };
 type RoleItem = { roleId: string; roleName: string; steps: RoleStep[] };
@@ -45,7 +45,7 @@ const defaultRoles: RoleItem[] = [
 ];
 
 export default function OnboardOneWork({ ws }: { ws: string }) {
-  const { items, state, create, patch, reload } = useWork<RoleItem>(ws);
+  const { items, state, create, patch, reload, pending, syncedAt } = useWork<RoleItem>(ws);
   const [roleId, setRoleId] = useState(defaultRoles[0].roleId);
   const [custom, setCustom] = useState("");
   const booted = useRef(false);
@@ -102,7 +102,7 @@ export default function OnboardOneWork({ ws }: { ws: string }) {
 
       <div className="demoList">
         <div className="demoListHead">
-          <p>Шаги по роли — отмечает либо новичок, либо наставник</p>
+          <p>Шаги по роли — отмечает либо новичок, либо наставник · <SyncMark ts={syncedAt} /></p>
         </div>
         <WorkStateBox state={state} onRetry={() => void reload()} />
         {state === "ok" && !role ? <div className="demoEmpty">Готовим стартовые маршруты…</div> : null}
@@ -124,9 +124,9 @@ export default function OnboardOneWork({ ws }: { ws: string }) {
             </ol>
             <form className="demoAddStep" onSubmit={(event) => { event.preventDefault(); void addStep(); }}>
               <input value={custom} onChange={(event) => setCustom(event.target.value)} placeholder="Свой шаг маршрута — например, выучить адрес склада" maxLength={180} />
-              <button className="button demoBtn" type="submit">Добавить шаг для всех <ArrowDownRight size={16} /></button>
+              <button className="button demoBtn" type="submit" disabled={pending}>{pending ? "Сохраняю…" : <>Добавить шаг для всех <ArrowDownRight size={16} /></>}</button>
             </form>
-            <button type="button" className="demoGhostBtn demoReset" onClick={() => void reset()}><RotateCcw size={13} /> Сбросить маршрут к базовому</button>
+            <button type="button" className="demoGhostBtn demoReset" onClick={() => void reset()} disabled={pending}><RotateCcw size={13} /> Сбросить маршрут к базовому</button>
           </>
         ) : null}
       </div>

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowDownRight, ArrowUpRight, Trash2 } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { ConfirmKill } from "../work/workUi";
 
 type Brief = {
   id: string;
@@ -106,7 +107,7 @@ export default function BriefBoxDemo() {
           <article className="demoCard" key={item.id} data-status={item.status}>
             <div className="demoCardTop">
               <span className={`demoStatus s-${item.status}`}>{statusLabels[item.status]}</span>
-              <button type="button" className="demoKill" onClick={() => remove(item.id)} aria-label="Удалить заявку"><Trash2 size={14} /></button>
+              <ConfirmKill onKill={() => remove(item.id)} label="Удалить заявку" />
             </div>
             <p className="demoNeed">{item.need}</p>
             <div className="demoMetaGrid">

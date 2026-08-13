@@ -1,15 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowDownRight, Trash2, TrendingDown, TrendingUp } from "lucide-react";
+import { ArrowDownRight, TrendingDown, TrendingUp } from "lucide-react";
 import useBuckets from "./useBuckets";
-import { WorkStateBox } from "./workUi";
+import { ConfirmKill, SyncMark, WorkStateBox } from "./workUi";
 
 type MarginRow = { name: string; price: number; cost: number };
 type StockRow = { name: string; stock: number; sales: number };
 
 export function PriceSignalWork({ ws }: { ws: string }) {
-  const { bucket, add, update, remove, setMeta, metaItem, state, reload } = useBuckets(ws);
+  const { bucket, add, update, remove, setMeta, metaItem, state, reload, pending, syncedAt } = useBuckets(ws);
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [cost, setCost] = useState("");
@@ -62,8 +62,8 @@ export function PriceSignalWork({ ws }: { ws: string }) {
           <label>Цена продажи, ₽*<input type="number" min={0} value={price} onChange={(event) => setPrice(event.target.value)} placeholder="290" /></label>
           <label>Себестоимость, ₽*<input type="number" min={0} value={cost} onChange={(event) => setCost(event.target.value)} placeholder="118" /></label>
         </div>
-        <button className="button demoBtn" type="submit">Добавить позицию <ArrowDownRight size={16} /></button>
-        {loud ? <p className="formError">{loud}</p> : null}
+        <button className="button demoBtn" type="submit" disabled={pending}>{pending ? "Сохраняю…" : <>Добавить позицию <ArrowDownRight size={16} /></>}</button>
+        {loud ? <p className="formError" role="alert">{loud}</p> : null}
         <div className="critSection demoThreshold">
           <p className="critLabel">СИГНАЛ, ЕСЛИ МАРЖА НИЖЕ, %</p>
           <input className="numField" type="number" min={1} max={99} value={threshold}
@@ -75,7 +75,7 @@ export function PriceSignalWork({ ws }: { ws: string }) {
 
       <div className="demoList">
         <div className="demoListHead">
-          <p>Позиций {state === "ok" ? rows.length : "…"} · сигналов: {state === "ok" ? signals : "…"} · обновление каждые 15 сек</p>
+          <p>Позиций {state === "ok" ? rows.length : "…"} · сигналов: {state === "ok" ? signals : "…"} · <SyncMark ts={syncedAt} /></p>
         </div>
         <WorkStateBox state={state} onRetry={() => void reload()} />
         {state === "ok" && (rows.length === 0
@@ -88,7 +88,7 @@ export function PriceSignalWork({ ws }: { ws: string }) {
               <article className={`demoCard tRow${bad ? " alert" : ""}`} key={row.id}>
                 <div className="demoCardTop">
                   <span className={`demoStatus ${bad ? "s-new" : "s-done"}`}>{bad ? <><TrendingDown size={11} /> ПОРА ПЕРЕСМОТРЕТЬ ЦЕНУ</> : <><TrendingUp size={11} /> МАРЖА В НОРМЕ</>}</span>
-                  <button type="button" className="demoKill" onClick={() => void remove(row.id)} aria-label="Удалить позицию"><Trash2 size={14} /></button>
+                  <ConfirmKill onKill={() => void remove(row.id)} label="Удалить позицию" disabled={pending} />
                 </div>
                 <p className="demoNeed">{row.data.name}</p>
                 <div className="demoEditRow">
@@ -109,7 +109,7 @@ export function PriceSignalWork({ ws }: { ws: string }) {
 }
 
 export function StockAlertWork({ ws }: { ws: string }) {
-  const { bucket, add, update, remove, setMeta, metaItem, state, reload } = useBuckets(ws);
+  const { bucket, add, update, remove, setMeta, metaItem, state, reload, pending, syncedAt } = useBuckets(ws);
   const [name, setName] = useState("");
   const [stock, setStock] = useState("");
   const [sales, setSales] = useState("");
@@ -163,8 +163,8 @@ export function StockAlertWork({ ws }: { ws: string }) {
           <label>Остаток, шт*<input type="number" min={0} value={stock} onChange={(event) => setStock(event.target.value)} placeholder="420" /></label>
           <label>Продаж в день, шт*<input type="number" min={0} step="0.5" value={sales} onChange={(event) => setSales(event.target.value)} placeholder="130" /></label>
         </div>
-        <button className="button demoBtn" type="submit">Добавить позицию <ArrowDownRight size={16} /></button>
-        {loud ? <p className="formError">{loud}</p> : null}
+        <button className="button demoBtn" type="submit" disabled={pending}>{pending ? "Сохраняю…" : <>Добавить позицию <ArrowDownRight size={16} /></>}</button>
+        {loud ? <p className="formError" role="alert">{loud}</p> : null}
         <div className="critSection demoThreshold">
           <p className="critLabel">НЕСНИЖАЕМЫЙ ЗАПАС, ДНЕЙ</p>
           <input className="numField" type="number" min={1} max={60} value={days}
@@ -176,7 +176,7 @@ export function StockAlertWork({ ws }: { ws: string }) {
 
       <div className="demoList">
         <div className="demoListHead">
-          <p>Позиций {state === "ok" ? rows.length : "…"} · список закупки: {state === "ok" ? `${signals} поз.` : "…"} · обновление каждые 15 сек</p>
+          <p>Позиций {state === "ok" ? rows.length : "…"} · список закупки: {state === "ok" ? `${signals} поз.` : "…"} · <SyncMark ts={syncedAt} /></p>
         </div>
         <WorkStateBox state={state} onRetry={() => void reload()} />
         {state === "ok" && (rows.length === 0
@@ -190,7 +190,7 @@ export function StockAlertWork({ ws }: { ws: string }) {
               <article className={`demoCard tRow${bad ? " alert" : ""}`} key={row.id}>
                 <div className="demoCardTop">
                   <span className={`demoStatus ${bad ? "s-new" : "s-done"}`}>{bad ? <>ЗАКАЗАТЬ ~{order} ШТ</> : "ЗАПАС В НОРМЕ"}</span>
-                  <button type="button" className="demoKill" onClick={() => void remove(row.id)} aria-label="Удалить позицию"><Trash2 size={14} /></button>
+                  <ConfirmKill onKill={() => void remove(row.id)} label="Удалить позицию" disabled={pending} />
                 </div>
                 <p className="demoNeed">{row.data.name}</p>
                 <div className="demoEditRow">

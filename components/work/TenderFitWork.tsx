@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ArrowDownRight, Check, X } from "lucide-react";
 import useBuckets from "./useBuckets";
-import { WorkStateBox } from "./workUi";
+import { SyncMark, WorkStateBox } from "./workUi";
 
 type Tender = { id: string; title: string; type: string; budget: number; region: string; deadline: string };
 
@@ -27,7 +27,7 @@ const defaults: Criteria = { types: ["Монтаж"], regions: ["Москва и
 const money = (n: number) => `${n.toLocaleString("ru-RU")} ₽`;
 
 export default function TenderFitWork({ ws }: { ws: string }) {
-  const { setMeta, metaItem, state, reload } = useBuckets(ws);
+  const { setMeta, metaItem, state, reload, pending, syncedAt } = useBuckets(ws);
   const [budgetDraft, setBudgetDraft] = useState<number | null>(null);
   const [loud, setLoud] = useState("");
 
@@ -92,14 +92,14 @@ export default function TenderFitWork({ ws }: { ws: string }) {
             onChange={(event) => setBudgetDraft(Math.max(0, Number(event.target.value) || 0))}
             onBlur={() => void commitBudget()} />
         </div>
-        {loud ? <p className="formError">{loud}</p> : null}
+        {loud ? <p className="formError" role="alert">{loud}</p> : null}
         <p className="demoFootNote">Фильтр и отметки хранятся на сервере: отсеяв однажды, вы не увидите эти закупки ни с одного устройства команды. Лента закупок здесь учебная — на пилоте подключаем живой источник под ваш профиль.</p>
       </div>
 
       <div className="demoList">
         <div className="demoListHead">
-          <p>Сегодня в ленте {tenders.length} закупок · прошли фильтр: {state === "ok" ? matching.length : "…"} · вне критериев: {state === "ok" ? outside : "…"}{rejected ? ` · отсеяно вами: ${rejected}` : ""}</p>
-          <button type="button" className="demoGhostBtn" onClick={() => void save({ ...defaults })}>Сбросить фильтр</button>
+          <p>Сегодня в ленте {tenders.length} закупок · прошли фильтр: {state === "ok" ? matching.length : "…"} · вне критериев: {state === "ok" ? outside : "…"}{rejected ? ` · отсеяно вами: ${rejected}` : ""} · <SyncMark ts={syncedAt} /></p>
+          <button type="button" className="demoGhostBtn" onClick={() => void save({ ...defaults })} disabled={pending}>Сбросить фильтр</button>
         </div>
         <WorkStateBox state={state} onRetry={() => void reload()} />
         {state === "ok" && matching.length === 0 && <div className="demoEmpty">По этим критериям сегодня пусто. Ослабьте фильтр — или оставьте как есть: честный ноль лучше тридцати пустых строк.</div>}

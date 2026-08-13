@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowDownRight, Merge, Trash2 } from "lucide-react";
+import { ArrowDownRight, Merge } from "lucide-react";
 import useBuckets from "./useBuckets";
-import { WorkStateBox } from "./workUi";
+import { ConfirmKill, SyncMark, WorkStateBox } from "./workUi";
 
 type LeadRow = {
   key: string;
@@ -30,7 +30,7 @@ function mergeKey(lead: { name: string; contact: string }) {
 }
 
 export default function DedupWork({ ws }: { ws: string }) {
-  const { bucket, add, update, remove, state, reload } = useBuckets(ws);
+  const { bucket, add, update, remove, state, reload, pending, syncedAt } = useBuckets(ws);
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [source, setSource] = useState(sources[0]);
@@ -81,14 +81,14 @@ export default function DedupWork({ ws }: { ws: string }) {
         </div>
         <label>Имя / компания*<input value={name} onChange={(event) => setName(event.target.value)} placeholder="ООО «Север»" /></label>
         <label>Контакт*<input value={contact} onChange={(event) => setContact(event.target.value)} placeholder="+7 911 555-34-21 или @ник" /></label>
-        <button className="button demoBtn" type="submit">Добавить и сверить <ArrowDownRight size={16} /></button>
-        {loud ? <p className="formError">{loud}</p> : null}
+        <button className="button demoBtn" type="submit" disabled={pending}>{pending ? "Сохраняю…" : <>Добавить и сверить <ArrowDownRight size={16} /></>}</button>
+        {loud ? <p className="formError" role="alert">{loud}</p> : null}
         <p className="demoFootNote">База общая: сверка идёт по последним 10 цифрам телефона, нику и похожему названию по всем лидам, что внесла вся команда. Дубль помечается до начала работы, а не после третьего звонка.</p>
       </form>
 
       <div className="demoList">
         <div className="demoListHead">
-          <p>Лидов {state === "ok" ? leads.length : "…"} · помечено дублей: {state === "ok" ? dups : "…"} · обновление каждые 15 сек</p>
+          <p>Лидов {state === "ok" ? leads.length : "…"} · помечено дублей: {state === "ok" ? dups : "…"} · <SyncMark ts={syncedAt} /></p>
         </div>
         <WorkStateBox state={state} onRetry={() => void reload()} />
         {state === "ok" && (leads.length === 0
@@ -102,7 +102,7 @@ export default function DedupWork({ ws }: { ws: string }) {
                   {lead.data.dupKey
                     ? <span className="demoStatus s-new">ПОХОЖЕ НА ДУБЛЬ{parent ? ` · совпал с «${parent.data.name}»` : ""}</span>
                     : <span className="demoStatus s-done">УНИКАЛЬНЫЙ{lead.data.merged > 1 ? ` · обращений: ${lead.data.merged}` : ""}</span>}
-                  <button type="button" className="demoKill" onClick={() => void remove(lead.id)} aria-label="Удалить лид"><Trash2 size={14} /></button>
+                  <ConfirmKill onKill={() => void remove(lead.id)} label="Удалить лид" disabled={pending} />
                 </div>
                 <p className="demoNeed">{lead.data.name}</p>
                 <div className="demoMetaGrid">
@@ -110,7 +110,7 @@ export default function DedupWork({ ws }: { ws: string }) {
                   <span><b>ИСТОЧНИК</b>{lead.data.source}</span>
                 </div>
                 {lead.data.dupKey
-                  ? <button type="button" className="demoGhostBtn demoCardCta" onClick={() => void merge(lead)}><Merge size={13} /> Объединить в оригинал</button>
+                  ? <button type="button" className="demoGhostBtn demoCardCta" onClick={() => void merge(lead)} disabled={pending}><Merge size={13} /> Объединить в оригинал</button>
                   : null}
               </article>
             );

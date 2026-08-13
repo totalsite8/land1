@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowDownRight, Trash2, TrendingDown, TrendingUp } from "lucide-react";
+import { ArrowDownRight, TrendingDown, TrendingUp } from "lucide-react";
+import { ConfirmKill } from "../work/workUi";
 
 /**
  * Два демо на одном механике «строки + порог = сигнал»:
@@ -99,7 +100,7 @@ export function PriceSignalDemo() {
               <article className={`demoCard tRow${bad ? " alert" : ""}`} key={row.id}>
                 <div className="demoCardTop">
                   <span className={`demoStatus ${bad ? "s-new" : "s-done"}`}>{bad ? <><TrendingDown size={11} /> ПОРА ПЕРЕСМОТРЕТЬ ЦЕНУ</> : <><TrendingUp size={11} /> МАРЖА В НОРМЕ</>}</span>
-                  <button type="button" className="demoKill" onClick={() => setRows((list) => list.filter((r) => r.id !== row.id))} aria-label="Удалить позицию"><Trash2 size={14} /></button>
+                  <ConfirmKill onKill={() => setRows((list) => list.filter((r) => r.id !== row.id))} label="Удалить позицию" />
                 </div>
                 <p className="demoNeed">{row.name}</p>
                 <div className="demoEditRow">
@@ -190,7 +191,7 @@ export function StockAlertDemo() {
               <article className={`demoCard tRow${bad ? " alert" : ""}`} key={row.id}>
                 <div className="demoCardTop">
                   <span className={`demoStatus ${bad ? "s-new" : "s-done"}`}>{bad ? <>ЗАКАЗАТЬ ~{order} ШТ</> : "ЗАПАС В НОРМЕ"}</span>
-                  <button type="button" className="demoKill" onClick={() => setRows((list) => list.filter((r) => r.id !== row.id))} aria-label="Удалить позицию"><Trash2 size={14} /></button>
+                  <ConfirmKill onKill={() => setRows((list) => list.filter((r) => r.id !== row.id))} label="Удалить позицию" />
                 </div>
                 <p className="demoNeed">{row.name}</p>
                 <div className="demoEditRow">

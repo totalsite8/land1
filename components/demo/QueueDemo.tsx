@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowDownRight, ArrowUpRight, Clock3, Trash2 } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Clock3 } from "lucide-react";
+import { ConfirmKill } from "../work/workUi";
 
 export type QueueField = {
   id: string;
@@ -153,7 +154,7 @@ export default function QueueDemo({ config }: { config: QueueConfig }) {
                   {overdue ? <span className="demoStatus s-new">ПРОСРОЧЕН</span> : null}
                   {config.showAge && !closed ? <span className="demoAge"><Clock3 size={11} /> ждёт {ageText(item.createdAt)}</span> : null}
                   <span className="demoTime">{timeLabel(item.createdAt)}</span>
-                  <button type="button" className="demoKill" onClick={() => remove(item.id)} aria-label="Удалить запись"><Trash2 size={14} /></button>
+                  <ConfirmKill onKill={() => remove(item.id)} label="Удалить запись" />
                 </div>
                 <p className="demoNeed">{item.values[config.titleField] || "—"}</p>
                 <div className="demoMetaGrid">

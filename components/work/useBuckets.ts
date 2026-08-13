@@ -42,6 +42,8 @@ export default function useBuckets(ws: string) {
     state: work.state,
     reload: work.reload,
     remove: work.remove,
+    pending: work.pending,
+    syncedAt: work.syncedAt,
     bucket,
     add,
     update,

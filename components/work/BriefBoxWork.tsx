@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowDownRight, ArrowUpRight, Trash2 } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import useWork from "./useWork";
-import { WorkStateBox } from "./workUi";
+import { ConfirmKill, SyncMark, WorkStateBox } from "./workUi";
 
 type BriefData = {
   need: string;
@@ -17,7 +17,7 @@ const statusLabels: Record<BriefData["status"], string> = { new: "Новая", p
 const order: BriefData["status"][] = ["new", "progress", "done"];
 
 export default function BriefBoxWork({ ws }: { ws: string }) {
-  const { items, state, create, patch, remove, reload } = useWork<BriefData>(ws);
+  const { items, state, create, patch, remove, reload, pending, syncedAt } = useWork<BriefData>(ws);
   const [need, setNeed] = useState("");
   const [deadline, setDeadline] = useState("");
   const [context, setContext] = useState("");
@@ -55,14 +55,14 @@ export default function BriefBoxWork({ ws }: { ws: string }) {
           <label>Контакт*<input value={contact} onChange={(event) => setContact(event.target.value)} placeholder="@ник или телефон" /></label>
         </div>
         <label>Контекст из переписки<textarea rows={2} value={context} onChange={(event) => setContext(event.target.value)} placeholder="Фото, голосовое, предыстория" /></label>
-        <button className="button demoBtn" type="submit">На общую доску <ArrowDownRight size={16} /></button>
-        {loud ? <p className="formError">{loud}</p> : null}
+        <button className="button demoBtn" type="submit" disabled={pending}>{pending ? "Сохраняю…" : <>На общую доску <ArrowDownRight size={16} /></>}</button>
+        {loud ? <p className="formError" role="alert">{loud}</p> : null}
         <p className="demoFootNote">Заявка сохраняется на сервере и видна всем, у кого есть ссылка на это пространство. Доска обновляется сама каждые 15 секунд.</p>
       </form>
 
       <div className="demoList">
         <div className="demoListHead">
-          <p>Общая доска — {items.length} заявок, {open} открыто · обновление каждые 15 сек</p>
+          <p>Общая доска — {items.length} заявок, {open} открыто · <SyncMark ts={syncedAt} /></p>
         </div>
         <WorkStateBox state={state} onRetry={() => void reload()} />
         {state === "ok" && items.length === 0 ? <div className="demoEmpty">Доска пуста — первая заявка слева попадёт на неё одновременно ко всем, кто открыл ссылку.</div> : null}
@@ -71,7 +71,7 @@ export default function BriefBoxWork({ ws }: { ws: string }) {
             <div className="demoCardTop">
               <span className={`demoStatus s-${item.data.status}`}>{statusLabels[item.data.status]}</span>
               <span className="demoTime">{new Date(item.createdAt).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}</span>
-              <button type="button" className="demoKill" onClick={() => void remove(item.id)} aria-label="Удалить заявку"><Trash2 size={14} /></button>
+              <ConfirmKill onKill={() => void remove(item.id)} label="Удалить заявку" disabled={pending} />
             </div>
             <p className="demoNeed">{item.data.need}</p>
             <div className="demoMetaGrid">

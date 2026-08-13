@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowDownRight, Merge, Trash2 } from "lucide-react";
+import { ArrowDownRight, Merge } from "lucide-react";
+import { ConfirmKill } from "../work/workUi";
 
 type Lead = {
   id: string;
@@ -118,7 +119,7 @@ export default function DedupDemo() {
                   {lead.dupOf
                     ? <span className="demoStatus s-new">ПОХОЖЕ НА ДУБЛЬ{parent ? ` · совпал с «${parent.name}»` : ""}</span>
                     : <span className="demoStatus s-done">УНИКАЛЬНЫЙ{lead.merged > 1 ? ` · обращений: ${lead.merged}` : ""}</span>}
-                  <button type="button" className="demoKill" onClick={() => setLeads((list) => list.filter((other) => other.id !== lead.id))} aria-label="Удалить лид"><Trash2 size={14} /></button>
+                  <ConfirmKill onKill={() => setLeads((list) => list.filter((other) => other.id !== lead.id))} label="Удалить лид" />
                 </div>
                 <p className="demoNeed">{lead.name}</p>
                 <div className="demoMetaGrid">

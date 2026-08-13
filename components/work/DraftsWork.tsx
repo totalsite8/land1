@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowDownRight, ArrowUpRight, Trash2 } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import useBuckets from "./useBuckets";
-import { WorkStateBox } from "./workUi";
+import { ConfirmKill, SyncMark, WorkStateBox } from "./workUi";
 
 type Draft = { kind: string; label: string; text: string; statusIdx: number };
 type IdeaRow = { idea: string; drafts: Draft[]; createdAt: number };
@@ -19,7 +19,7 @@ function buildDrafts(idea: string): Draft[] {
 }
 
 export default function DraftsWork({ ws }: { ws: string }) {
-  const { bucket, add, update, remove, state, reload } = useBuckets(ws);
+  const { bucket, add, update, remove, state, reload, pending, syncedAt } = useBuckets(ws);
   const [idea, setIdea] = useState("");
   const [loud, setLoud] = useState("");
 
@@ -52,14 +52,14 @@ export default function DraftsWork({ ws }: { ws: string }) {
       <form className="demoForm" onSubmit={(event) => { event.preventDefault(); void addIdea(); }}>
         <p className="demoFormTitle">Одна мысль на входе — общая редакция</p>
         <label>Надиктуйте наблюдение*<textarea rows={3} value={idea} onChange={(event) => setIdea(event.target.value)} placeholder="Ответ на частый вопрос, вывод из проекта, рабочая находка" /></label>
-        <button className="button demoBtn" type="submit">Разложить в цепочку <ArrowDownRight size={16} /></button>
-        {loud ? <p className="formError">{loud}</p> : null}
+        <button className="button demoBtn" type="submit" disabled={pending}>{pending ? "Сохраняю…" : <>Разложить в цепочку <ArrowDownRight size={16} /></>}</button>
+        {loud ? <p className="formError" role="alert">{loud}</p> : null}
         <p className="demoFootNote">Черновики — наброски под вашу мысль, а не «текст за автора»: финальную редакцию всегда делает человек. Цепочка общая: статусы двигает любой из команды, все видят одно состояние.</p>
       </form>
 
       <div className="demoList">
         <div className="demoListHead">
-          <p>Мыслей в работе: {state === "ok" ? ideas.length : "…"} · обновление каждые 15 сек</p>
+          <p>Мыслей в работе: {state === "ok" ? ideas.length : "…"} · <SyncMark ts={syncedAt} /></p>
         </div>
         <WorkStateBox state={state} onRetry={() => void reload()} />
         {state === "ok" && (ideas.length === 0
@@ -68,7 +68,7 @@ export default function DraftsWork({ ws }: { ws: string }) {
             <article className="demoCard" key={item.id}>
               <div className="demoCardTop">
                 <span className="demoKind k-task">Цепочка из 3 черновиков</span>
-                <button type="button" className="demoKill" onClick={() => void remove(item.id)} aria-label="Удалить цепочку"><Trash2 size={14} /></button>
+                <ConfirmKill onKill={() => void remove(item.id)} label="Удалить цепочку" disabled={pending} />
               </div>
               <p className="demoNeed">{item.data.idea}</p>
               <div className="demoDrafts">

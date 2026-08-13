@@ -390,6 +390,9 @@ footer{display:block;padding:29px 20px}
 .demoKill{margin-left:auto;background:none;border:0;cursor:pointer;color:#8a887f;padding:6px;transition:.2s}
 .demoTime+.demoKill{margin-left:0}
 .demoKill:hover{color:var(--hot)}
+.demoKill.armed{width:auto;padding:3px 9px;border:1px solid #b42323;border-radius:8px;background:#fdeee9;color:#b42323;font:700 11px/1.2 inherit;letter-spacing:.04em;white-space:nowrap}
+.demoKill:disabled{opacity:.5;cursor:default}
+.demoBtn:disabled,.demoGhostBtn:disabled{opacity:.55;cursor:default;pointer-events:none}
 .demoNeed{font-size:16px;font-weight:700;line-height:1.5;margin:4px 0 12px;letter-spacing:-.01em}
 .shiftCard.closed .demoNeed{opacity:.55;text-decoration:line-through}
 .demoMetaGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px}

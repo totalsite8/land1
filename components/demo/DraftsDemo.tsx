@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowDownRight, ArrowUpRight, Trash2 } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { ConfirmKill } from "../work/workUi";
 
 type Draft = { kind: string; label: string; text: string; statusIdx: number };
 type Idea = { id: string; idea: string; drafts: Draft[]; createdAt: number };
@@ -93,7 +94,7 @@ export default function DraftsDemo() {
             <article className="demoCard" key={item.id}>
               <div className="demoCardTop">
                 <span className="demoKind k-task">Цепочка из 3 черновиков</span>
-                <button type="button" className="demoKill" onClick={() => setIdeas((list) => list.filter((other) => other.id !== item.id))} aria-label="Удалить цепочку"><Trash2 size={14} /></button>
+                <ConfirmKill onKill={() => setIdeas((list) => list.filter((other) => other.id !== item.id))} label="Удалить цепочку" />
               </div>
               <p className="demoNeed">{item.idea}</p>
               <div className="demoDrafts">

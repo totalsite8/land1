@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowDownRight, Trash2 } from "lucide-react";
+import { ArrowDownRight } from "lucide-react";
+import { ConfirmKill } from "../work/workUi";
 
 type Comp = { id: string; name: string };
 type Change = { id: string; compId: string; type: "price" | "service" | "promo" | "term"; text: string; createdAt: number };
@@ -116,7 +117,7 @@ export default function RivalLogDemo() {
                 <span className="demoKind k-task">{compName(change.compId)}</span>
                 <span className={`demoStatus ${change.type === "price" ? "s-new" : change.type === "promo" ? "s-progress" : "s-done"}`}>{typeLabels[change.type].toUpperCase()}</span>
                 <span className="demoTime">{dateLabel(change.createdAt)}</span>
-                <button type="button" className="demoKill" onClick={() => setChanges((list) => list.filter((c) => c.id !== change.id))} aria-label="Удалить запись"><Trash2 size={14} /></button>
+                <ConfirmKill onKill={() => setChanges((list) => list.filter((c) => c.id !== change.id))} label="Удалить запись" />
               </div>
               <p className="demoNeed">{change.text}</p>
             </article>

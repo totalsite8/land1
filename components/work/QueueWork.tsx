@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowDownRight, ArrowUpRight, Clock3, Trash2 } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Clock3 } from "lucide-react";
 import type { QueueConfig } from "../demo/QueueDemo";
 import useBuckets from "./useBuckets";
-import { WorkStateBox } from "./workUi";
+import { ConfirmKill, SyncMark, WorkStateBox } from "./workUi";
 
 export type QueueRow = {
   kind?: string;
@@ -34,7 +34,7 @@ function dateLabel(value: string) {
 
 /** Рабочая версия очереди: тот же конфиг, что у демо, но записи живут на сервере и общие для всех, у кого ссылка. */
 export default function QueueWork({ config, ws }: { config: QueueConfig; ws: string }) {
-  const { bucket, add, update, remove, state, reload } = useBuckets(ws);
+  const { bucket, add, update, remove, state, reload, pending, syncedAt } = useBuckets(ws);
   const [values, setValues] = useState<Record<string, string>>({});
   const [kind, setKind] = useState<string | undefined>(config.defaultKind ?? config.kindTabs?.[0]?.id);
   const [loud, setLoud] = useState("");
@@ -85,14 +85,14 @@ export default function QueueWork({ config, ws }: { config: QueueConfig; ws: str
               : <input type={field.kind === "date" ? "date" : "text"} value={values[field.id] ?? ""} onChange={(event) => setField(field.id, event.target.value)} placeholder={field.placeholder} />}
           </label>
         ))}
-        <button className="button demoBtn" type="submit">{config.addLabel} <ArrowDownRight size={16} /></button>
-        {loud ? <p className="formError">{loud}</p> : null}
+        <button className="button demoBtn" type="submit" disabled={pending}>{pending ? "Сохраняю…" : <>{config.addLabel} <ArrowDownRight size={16} /></>}</button>
+        {loud ? <p className="formError" role="alert">{loud}</p> : null}
         <p className="demoFootNote">Записи сохраняются на сервере и видны всем, у кого есть ссылка на это пространство. Доска обновляется сама каждые 15 секунд.</p>
       </form>
 
       <div className="demoList">
         <div className="demoListHead">
-          <p>Общая доска — открыто {state === "ok" ? `${open} из ${items.length}` : "…"} · обновление каждые 15 сек</p>
+          <p>Общая доска — открыто {state === "ok" ? `${open} из ${items.length}` : "…"} · <SyncMark ts={syncedAt} /></p>
         </div>
         <WorkStateBox state={state} onRetry={() => void reload()} />
         {state === "ok" && (items.length === 0
@@ -110,7 +110,7 @@ export default function QueueWork({ config, ws }: { config: QueueConfig; ws: str
                   {overdue ? <span className="demoStatus s-new">ПРОСРОЧЕН</span> : null}
                   {config.showAge && !closed ? <span className="demoAge"><Clock3 size={11} /> ждёт {ageText(item.data.createdAt)}</span> : null}
                   <span className="demoTime">{timeLabel(item.data.createdAt)}</span>
-                  <button type="button" className="demoKill" onClick={() => void remove(item.id)} aria-label="Удалить запись"><Trash2 size={14} /></button>
+                  <ConfirmKill onKill={() => void remove(item.id)} label="Удалить запись" disabled={pending} />
                 </div>
                 <p className="demoNeed">{item.data.values[config.titleField] || "—"}</p>
                 <div className="demoMetaGrid">

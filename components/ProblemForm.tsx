@@ -50,7 +50,7 @@ export default function ProblemForm() {
     </div>
     <label className="check"><input required type="checkbox" name="consent" /> <span>Согласен на обработку данных для ответа на заявку.</span></label>
     <button className="button buttonDark" disabled={state === "sending"} type="submit">{state === "sending" ? "Отправляем…" : "Отправить заявку на разбор"} <span>↗</span></button>
-    {state === "error" && <p className="formError">{error} <a href="https://t.me/bloodaman" target="_blank" rel="noreferrer">Написать в Telegram →</a></p>}
+    {state === "error" && <p className="formError" role="alert">{error} <a href="https://t.me/bloodaman" target="_blank" rel="noreferrer">Написать в Telegram →</a></p>}
     <p className="formNote">Не присылайте пароли, платёжные данные и клиентские базы. Сначала разберём процесс.</p>
   </form>;
 }

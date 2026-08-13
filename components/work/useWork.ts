@@ -13,6 +13,8 @@ export default function useWork<T>(ws: string) {
   const [items, setItems] = useState<WorkItem<T>[]>([]);
   const [name, setName] = useState("");
   const [state, setState] = useState<WorkState>("loading");
+  const [pending, setPending] = useState(0);
+  const [syncedAt, setSyncedAt] = useState<number | null>(null);
   const busy = useRef(false);
 
   const load = useCallback(async (silent = false) => {
@@ -26,6 +28,7 @@ export default function useWork<T>(ws: string) {
       setItems(json.items);
       setName(json.workspace.name);
       setState("ok");
+      setSyncedAt(Date.now());
     } catch {
       if (!silent) setState("error");
     } finally {
@@ -41,7 +44,13 @@ export default function useWork<T>(ws: string) {
     return () => { window.clearInterval(timer); document.removeEventListener("visibilitychange", onVis); };
   }, [load]);
 
-  const create = useCallback(async (data: T) => {
+  /** Обёртка мутаций: счётчик in-flight, чтобы формы блокировались от двойного сабмита. */
+  const run = useCallback(async (fn: () => Promise<boolean>) => {
+    setPending((p) => p + 1);
+    try { return await fn(); } finally { setPending((p) => p - 1); }
+  }, []);
+
+  const create = useCallback((data: T) => run(async () => {
     try {
       const res = await fetch(`/api/w/${ws}/items`, {
         method: "POST",
@@ -52,9 +61,9 @@ export default function useWork<T>(ws: string) {
       await load(true);
       return true;
     } catch { return false; }
-  }, [ws, load]);
+  }), [ws, load, run]);
 
-  const patch = useCallback(async (id: string, data: T) => {
+  const patch = useCallback((id: string, data: T) => run(async () => {
     try {
       const res = await fetch(`/api/w/${ws}/items/${id}`, {
         method: "PATCH",
@@ -65,16 +74,16 @@ export default function useWork<T>(ws: string) {
       await load(true);
       return true;
     } catch { return false; }
-  }, [ws, load]);
+  }), [ws, load, run]);
 
-  const remove = useCallback(async (id: string) => {
+  const remove = useCallback((id: string) => run(async () => {
     try {
       const res = await fetch(`/api/w/${ws}/items/${id}`, { method: "DELETE" });
       if (!res.ok) return false;
       await load(true);
       return true;
     } catch { return false; }
-  }, [ws, load]);
+  }), [ws, load, run]);
 
-  return { items, name, state, create, patch, remove, reload: load };
+  return { items, name, state, pending: pending > 0, syncedAt, create, patch, remove, reload: load };
 }

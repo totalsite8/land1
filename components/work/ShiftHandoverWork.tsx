@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowDownRight, ArrowUpRight, Check, Trash2 } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Check } from "lucide-react";
 import useWork from "./useWork";
-import { WorkStateBox } from "./workUi";
+import { ConfirmKill, SyncMark, WorkStateBox } from "./workUi";
 
 type NoteData = { kind: "task" | "stock" | "issue"; text: string; done: boolean };
 
@@ -15,7 +15,7 @@ const kindHints: Record<NoteData["kind"], string> = {
 };
 
 export default function ShiftHandoverWork({ ws }: { ws: string }) {
-  const { items, state, create, patch, remove, reload } = useWork<NoteData>(ws);
+  const { items, state, create, patch, remove, reload, pending, syncedAt } = useWork<NoteData>(ws);
   const [kind, setKind] = useState<NoteData["kind"]>("task");
   const [text, setText] = useState("");
   const [loud, setLoud] = useState("");
@@ -41,14 +41,14 @@ export default function ShiftHandoverWork({ ws }: { ws: string }) {
           ))}
         </div>
         <label>{kindHints[kind]}<textarea rows={3} value={text} onChange={(event) => setText(event.target.value)} placeholder="Одна запись — одна вещь. Коротко и по делу." /></label>
-        <button className="button demoBtn" type="submit">Поставить на доску смен <ArrowDownRight size={16} /></button>
-        {loud ? <p className="formError">{loud}</p> : null}
+        <button className="button demoBtn" type="submit" disabled={pending}>{pending ? "Сохраняю…" : <>Поставить на доску смен <ArrowDownRight size={16} /></>}</button>
+        {loud ? <p className="formError" role="alert">{loud}</p> : null}
         <p className="demoFootNote">Доска общая: вечерняя смена оставляет, утренняя открывает на своём телефоне и отмечает принятое. Обновление — раз в 15 секунд.</p>
       </form>
 
       <div className="demoList">
         <div className="demoListHead">
-          <p>Доска передачи — открыто {openCount} из {items.length} · обновление каждые 15 сек</p>
+          <p>Доска передачи — открыто {openCount} из {items.length} · <SyncMark ts={syncedAt} /></p>
         </div>
         <WorkStateBox state={state} onRetry={() => void reload()} />
         {state === "ok" && items.length === 0 ? <div className="demoEmpty">Доска пуста — смена закрыла всё, или ещё никто ничего не передал.</div> : null}
@@ -57,7 +57,7 @@ export default function ShiftHandoverWork({ ws }: { ws: string }) {
             <div className="demoCardTop">
               <span className={`demoKind k-${item.data.kind}`}>{kindLabels[item.data.kind]}</span>
               <span className="demoTime">{new Date(item.createdAt).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</span>
-              <button type="button" className="demoKill" onClick={() => void remove(item.id)} aria-label="Удалить запись"><Trash2 size={14} /></button>
+              <ConfirmKill onKill={() => void remove(item.id)} label="Удалить запись" disabled={pending} />
             </div>
             <p className="demoNeed">{item.data.text}</p>
             <button type="button" className="demoGhostBtn demoCardCta" onClick={() => void patch(item.id, { ...item.data, done: !item.data.done })}>
