@@ -4,6 +4,22 @@ import nodemailer from "nodemailer";
 const requiredFields = ["problem", "area", "role", "team", "contact", "current"] as const;
 const LEAD_EMAIL = "totalsite@yandex.ru";
 
+/** GET /api/lead — диагностика каналов без секретов: что сконфигурировано в среде. */
+export async function GET() {
+  return NextResponse.json({
+    ok: true,
+    mailConfigured: Boolean(process.env.YANDEX_SMTP_USER && process.env.YANDEX_SMTP_PASSWORD),
+    tgConfigured: Boolean(process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID)
+  });
+}
+
+/** Грубый код причины сбоя SMTP — достаточный для починки, без внутренностей наружу. */
+function mailReason(message: string): string {
+  if (/535|5\.7\.8|EAUTH|Invalid login|authentication failed|Username and Password not accepted/i.test(message)) return "smtp_auth";
+  if (/ETIMEDOUT|ESOCKET|ECONN|ENOTFOUND|EHOST|self signed|certificate/i.test(message)) return "smtp_connect";
+  return "smtp_send";
+}
+
 export async function POST(request: Request) {
   const body = await request.json() as Record<string, unknown>;
   const lead = Object.fromEntries(requiredFields.map((field) => [field, String(body[field] ?? "").trim()]));
@@ -63,7 +79,8 @@ export async function POST(request: Request) {
   }
 
   if (mailSent || tgSent) return NextResponse.json({ ok: true });
-  console.error("lead delivery failed", { mailError, tgSent, mailConfigured: Boolean(mailUser && mailPass), tgConfigured: Boolean(token && chatId) });
+  const reason = mailReason(mailError);
+  console.error("lead delivery failed", { reason, mailError, tgSent, mailConfigured: Boolean(mailUser && mailPass), tgConfigured: Boolean(token && chatId) });
   if (!mailUser || !mailPass) return NextResponse.json({ error: "Приём заявок ещё настраивается. Напишите нам в Telegram." }, { status: 503 });
-  return NextResponse.json({ error: "Не удалось отправить заявку. Напишите нам в Telegram." }, { status: 502 });
+  return NextResponse.json({ error: `Не удалось отправить заявку. Напишите нам в Telegram. (код: ${reason})` }, { status: 502 });
 }
