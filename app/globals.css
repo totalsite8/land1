@@ -167,7 +167,10 @@ footer{display:block;padding:29px 20px}
 .mmTrig[aria-expanded="true"] svg{transform:rotate(180deg)}
 .topRightTg{font:11px var(--mono);letter-spacing:.06em;text-decoration:none;border-bottom:1px solid;transition:.2s}
 .topRightTg:hover{color:var(--hot);border-color:var(--hot)}
-.mmPanel{position:absolute;top:calc(100% + 10px);left:0;right:0;background:var(--paper);border:1px solid var(--ink);border-radius:14px;box-shadow:0 40px 70px -34px rgba(21,23,20,.5);padding:26px clamp(20px,5vw,78px) 26px;animation:mmIn .22s ease;max-height:calc(100vh - 110px);overflow:auto}
+.mmPanel{position:absolute;top:calc(100% + 10px);left:0;right:0;background:var(--paper);border:1px solid var(--ink);border-radius:14px;box-shadow:0 40px 70px -34px rgba(21,23,20,.5);padding:26px clamp(20px,5vw,78px) 26px;animation:mmIn .28s cubic-bezier(.2,.7,.25,1);max-height:calc(100vh - 110px);overflow:auto}
+.mmPanel::before{content:"";position:absolute;top:-11px;left:6px;right:6px;height:11px}
+.mmPanel.closing{animation:mmOut .17s ease both;pointer-events:none}
+@keyframes mmOut{from{opacity:1;transform:none}to{opacity:0;transform:translateY(-8px)}}
 .mmGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px 34px}
 .mmGridTools{grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:2px 22px}
 .mmLink{display:grid;grid-template-columns:30px 1fr;gap:12px;padding:10px 8px;text-decoration:none;transition:background .15s;border-radius:2px}
